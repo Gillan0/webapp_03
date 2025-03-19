@@ -1,5 +1,13 @@
-controllers:
-    resource:
-        path: ../src/Controller/
-        namespace: App\Controller
-    type: attribute
+helloWorld:
+    path: /hello
+    controller: App\Controller\HelloController::displayHello
+
+
+presentation:
+    path: /pres
+    controller: App\Controller\HelloController::displayAuthor 
+
+
+
+
+
