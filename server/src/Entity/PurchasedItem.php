@@ -35,6 +35,9 @@ class PurchasedItem
 
     public function setCongratuloryMessage(string $congratuloryMessage): static
     {
+        if (!$this->isValidMessage($congratuloryMessage)) {
+            throw new Exception("Congratulatory Message too long");
+        }
         $this->congratuloryMessage = $congratuloryMessage;
 
         return $this;
@@ -63,4 +66,12 @@ class PurchasedItem
 
         return $this;
     }
+
+    private function isValidMessage(string $message) : bool {
+        if (strlen($message) > 500) {
+            return false;
+        }
+        return true;
+    }
+
 }
