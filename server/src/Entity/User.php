@@ -1,6 +1,7 @@
 <?php
-
 namespace App\Entity;
+
+include_once __DIR__ . '/../functions/functionDate.php';
 
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -200,6 +201,7 @@ class User
         return $this;
     }
 
+
     public function removeWishlist(Wishlist $wishlist): static
     {
         if ($this->wishlists->removeElement($wishlist)) {
@@ -211,4 +213,22 @@ class User
 
         return $this;
     }
+
+
+
+    ########################## NOS METHODES ###########################
+    
+    private function isValidWishlistParameters(string $nameNewWishlist, \DateTimeInterface $deadline) : bool {
+        if (!isValidDate($deadline)){
+            return false;
+        }
+
+        if (strlen($nameNewWishlist)>20){
+            return false;
+        }
+
+        return true;
+    }
+
+
 }

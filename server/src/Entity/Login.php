@@ -29,8 +29,8 @@ interface Login
     /**
      * Checks that username and password are valid (ie length, type of characters)
      */
-    protected function isValidCredentials(string $username,
-                                string $password) : boolean;
+    public function isValidCredentials(string $username,
+                                string $password) : bool;
 
 }
 

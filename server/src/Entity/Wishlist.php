@@ -1,6 +1,7 @@
 <?php
-
 namespace App\Entity;
+
+include_once __DIR__ . '/../functions/functionDate.php';
 
 use App\Repository\WishlistRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -70,6 +71,10 @@ class Wishlist
 
     public function setDeadline(\DateTimeInterface $deadline): static
     {
+        if (!isValidDate($deadline)){
+            throw new InvalidArgumentException("The deadline of the wishlist is not set with the proper format (Y-m-d H:i:s) or is set in the past.");
+        }
+
         $this->deadline = $deadline;
 
         return $this;
@@ -82,6 +87,10 @@ class Wishlist
 
     public function setName(string $name): static
     {
+        if (strlen($name)>20){
+            throw new InvalidArgumentException("The name of the wishlist is too long");
+        }
+
         $this->name = $name;
 
         return $this;
@@ -94,6 +103,11 @@ class Wishlist
 
     public function setSharingUrl(string $sharingUrl): static
     {
+
+        if (strlen($sharingUrl)>100){
+            throw new InvalidArgumentException("The length of the sharing url is too long");
+        }
+
         $this->sharingUrl = $sharingUrl;
 
         return $this;
@@ -106,6 +120,9 @@ class Wishlist
 
     public function setDisplayUrl(string $displayUrl): static
     {
+        if (strlen($displayUrl)>100){
+            throw new InvalidArgumentException("The length of the display url is too long");
+        }
         $this->displayUrl = $displayUrl;
 
         return $this;
@@ -201,4 +218,38 @@ class Wishlist
 
         return $this;
     }
+
+
+    ########################## NOS METHODES ###########################
+
+    // Get the 5 most expansive items from the wishlist
+    public function getMostExpensiveItems() : array {
+        $higherPrices = array();
+        foreach ($this->items as $item){
+            $higherPrices = $item.getPrice();
+        }
+        $higherPrices.sort();
+        return array_slice($higherPrices, -5);
+    }
+
+
+    // Check the validity of the item creation parameters
+    private function isValidItemParameters(string $titre, string $description, string $url, float $price) : bool {
+        if (strlen($titre)>20){
+            return false;
+        }
+        if (strlen($description)>500){
+            return false;
+        }
+        if (strlen($url)>200){
+            return false;
+        }
+        if($price<=0){
+            return false;
+        }
+
+        return true;
+    }
+
+
 }
