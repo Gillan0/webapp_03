@@ -26,7 +26,8 @@ class Item
     private ?string $url = null;
 
     #[ORM\ManyToOne(inversedBy: 'items')]
-    private ?Wishlist $wishlist = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Wishlist $itemFromWishlist = null;
 
     public function getId(): ?int
     {
@@ -81,14 +82,14 @@ class Item
         return $this;
     }
 
-    public function getWishlist(): ?Wishlist
+    public function getItemFromWishlist(): ?Wishlist
     {
-        return $this->wishlist;
+        return $this->itemFromWishlist;
     }
 
-    public function setWishlist(?Wishlist $wishlist): static
+    public function setItemFromWishlist(?Wishlist $itemFromWishlist): static
     {
-        $this->wishlist = $wishlist;
+        $this->itemFromWishlist = $itemFromWishlist;
 
         return $this;
     }

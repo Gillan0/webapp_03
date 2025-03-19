@@ -8,3 +8,5 @@
 /server/var/
 /server/vendor/
 ###< symfony/framework-bundle ###
+apache
+docker-compose.yml

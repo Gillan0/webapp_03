@@ -27,6 +27,24 @@ class User
     #[ORM\Column]
     private ?bool $isLocked = null;
 
+
+    /**
+     * @var Collection<int, Wishlist>
+     */
+    #[ORM\ManyToMany(targetEntity: Wishlist::class, inversedBy: 'contributors')]
+    #[ORM\JoinTable(name: 'user_contributing_wishlists')] // Nom unique
+    private Collection $contributingWishlists;
+
+    /**
+     * @var Collection<int, Wishlist>
+     */
+    #[ORM\ManyToMany(targetEntity: Wishlist::class, inversedBy: 'invitedUser')]
+    #[ORM\JoinTable(name: 'user_invited_wishlists')] // Nom unique
+    private Collection $invitedWishlists;
+
+    /**
+     * @var Collection<int, Wishlist>
+     */
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Website $website = null;
@@ -37,16 +55,12 @@ class User
     #[ORM\OneToMany(targetEntity: Wishlist::class, mappedBy: 'author', orphanRemoval: true)]
     private Collection $wishlists;
 
-    /**
-     * @var Collection<int, Wishlist>
-     */
-    #[ORM\ManyToMany(targetEntity: Wishlist::class, mappedBy: 'contributors')]
-    private Collection $contributingWishlists;
 
     public function __construct()
     {
-        $this->wishlists = new ArrayCollection();
         $this->contributingWishlists = new ArrayCollection();
+        $this->invitedWishlists = new ArrayCollection();
+        $this->wishlists = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -102,6 +116,60 @@ class User
         return $this;
     }
 
+    /**
+     * @return Collection<int, Wishlist>
+     */
+    public function getContributingWishlists(): Collection
+    {
+        return $this->contributingWishlists;
+    }
+
+    public function addContributingWishlist(Wishlist $contributingWishlist): static
+    {
+        if (!$this->contributingWishlists->contains($contributingWishlist)) {
+            $this->contributingWishlists->add($contributingWishlist);
+            $contributingWishlist->addContributor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContributingWishlist(Wishlist $contributingWishlist): static
+    {
+        if ($this->contributingWishlists->removeElement($contributingWishlist)) {
+            $contributingWishlist->removeContributor($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Wishlist>
+     */
+    public function getInvitedWishlists(): Collection
+    {
+        return $this->invitedWishlists;
+    }
+
+    public function addInvitedWishlist(Wishlist $invitedWishlist): static
+    {
+        if (!$this->invitedWishlists->contains($invitedWishlist)) {
+            $this->invitedWishlists->add($invitedWishlist);
+            $invitedWishlist->addInvitedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvitedWishlist(Wishlist $invitedWishlist): static
+    {
+        if ($this->invitedWishlists->removeElement($invitedWishlist)) {
+            $invitedWishlist->removeInvitedUser($this);
+        }
+
+        return $this;
+    }
+
     public function getWebsite(): ?Website
     {
         return $this->website;
@@ -139,33 +207,6 @@ class User
             if ($wishlist->getAuthor() === $this) {
                 $wishlist->setAuthor(null);
             }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Wishlist>
-     */
-    public function getContributingWishlists(): Collection
-    {
-        return $this->contributingWishlists;
-    }
-
-    public function addContributingWishlist(Wishlist $contributingWishlist): static
-    {
-        if (!$this->contributingWishlists->contains($contributingWishlist)) {
-            $this->contributingWishlists->add($contributingWishlist);
-            $contributingWishlist->addContributor($this);
-        }
-
-        return $this;
-    }
-
-    public function removeContributingWishlist(Wishlist $contributingWishlist): static
-    {
-        if ($this->contributingWishlists->removeElement($contributingWishlist)) {
-            $contributingWishlist->removeContributor($this);
         }
 
         return $this;

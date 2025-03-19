@@ -28,33 +28,34 @@ class Wishlist
     #[ORM\Column(length: 100)]
     private ?string $displayUrl = null;
 
-    #[ORM\ManyToOne(inversedBy: 'wishlists')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $author = null;
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'contributingWishlists')]
+    private Collection $contributors;
 
     /**
      * @var Collection<int, User>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'contributingWishlists')]
-    private Collection $contributors;
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'invitedWishlists')]
+    private Collection $invitedUser;
+
 
     /**
      * @var Collection<int, Item>
      */
-    #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'wishlist')]
+    #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'itemFromWishlist', orphanRemoval: true)]
     private Collection $items;
 
-    /**
-     * @var Collection<int, User>
-     */
-    #[ORM\ManyToMany(targetEntity: User::class)]
-    private Collection $invitedUser;
+    #[ORM\ManyToOne(inversedBy: 'wishlists')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $author = null;
 
     public function __construct()
     {
         $this->contributors = new ArrayCollection();
-        $this->items = new ArrayCollection();
         $this->invitedUser = new ArrayCollection();
+        $this->items = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -110,17 +111,6 @@ class Wishlist
         return $this;
     }
 
-    public function getAuthor(): ?User
-    {
-        return $this->author;
-    }
-
-    public function setAuthor(?User $author): static
-    {
-        $this->author = $author;
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, User>
@@ -147,36 +137,6 @@ class Wishlist
     }
 
     /**
-     * @return Collection<int, Item>
-     */
-    public function getItems(): Collection
-    {
-        return $this->items;
-    }
-
-    public function addItem(Item $item): static
-    {
-        if (!$this->items->contains($item)) {
-            $this->items->add($item);
-            $item->setWishlist($this);
-        }
-
-        return $this;
-    }
-
-    public function removeItem(Item $item): static
-    {
-        if ($this->items->removeElement($item)) {
-            // set the owning side to null (unless already changed)
-            if ($item->getWishlist() === $this) {
-                $item->setWishlist(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection<int, User>
      */
     public function getInvitedUser(): Collection
@@ -196,6 +156,48 @@ class Wishlist
     public function removeInvitedUser(User $invitedUser): static
     {
         $this->invitedUser->removeElement($invitedUser);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Item>
+     */
+    public function getItems(): Collection
+    {
+        return $this->items;
+    }
+
+    public function addItem(Item $item): static
+    {
+        if (!$this->items->contains($item)) {
+            $this->items->add($item);
+            $item->setItemFromWishlist($this);
+        }
+
+        return $this;
+    }
+
+    public function removeItem(Item $item): static
+    {
+        if ($this->items->removeElement($item)) {
+            // set the owning side to null (unless already changed)
+            if ($item->getItemFromWishlist() === $this) {
+                $item->setItemFromWishlist(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): static
+    {
+        $this->author = $author;
 
         return $this;
     }
