@@ -9,7 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: WishlistRepository::class)]
-class Wishlist
+class Wishlist implements WishlistContributor
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -163,7 +163,7 @@ class Wishlist
     /**
      * @return Collection<int, Item>
      */
-    public function getItems(): Collection
+    public function getItems(SortOrder $sortOrder): Collection
     {
         return $this->items;
     }
@@ -200,5 +200,25 @@ class Wishlist
         $this->author = $author;
 
         return $this;
+    }
+
+
+    public function purchase(User $user, Item $item, string $proof) : PurchasedItem {
+
+        $this->items->removeElement($item);
+
+        // Build purchased item
+        $purchased_item = new PurchasedItem();
+        $purchased_item->setBuyer($user);
+        $purchased_item->setPurchaseProof($proof);
+        // Rebuild item part
+        $purchased_item->setDescription($item->getDescription());
+        $purchased_item->setTitle($item->getTitle());
+        $purchased_item->setPrice($item->getPrice());
+        $purchased_item->setUrl($item->getUrl());
+
+        $this->items->add($purchased_item);
+
+        return $purchased_item;
     }
 }

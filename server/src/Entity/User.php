@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User implements WishlistManagement
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -211,4 +211,53 @@ class User
 
         return $this;
     }
+
+    public function createWishlist(string $name, \DateTime $date) : Wishlist {
+        
+        $wishlist = new Wishlist();
+        $wishlist->setName($name);
+        $wishlist->setDeadline($date);
+        
+        return $wishlist;
+    }
+
+    public function editWishlist(Wishlist $wishlist, string $name, \DateTime $date) : Wishlist {
+        
+        $wishlist->setName($name);
+        $wishlist->setDeadline($date);
+        
+        return $wishlist;
+    }
+
+    public function deleteWishlist(Wishlist $wishlist) : void {
+
+        $this->wishlists->removeElement($wishlist);
+
+    }
+
+    public function sendInvitation(string $username, Wishlist $wishlist) : void {
+        
+        $user = new User();
+        $user->addInvitedWishlist($wishlist);
+
+    }
+
+    public function acceptInvitation(Wishlist $wishlist) : void {
+        
+        
+        $wishlist->removeInvitedUser($this);
+        $wishlist->addContributor($this);
+        $this->removeInvitedWishlist($wishlist);
+        $this->addContributingWishlist($wishlist);
+
+    }
+
+    public function refuseInvitation(Wishlist $wishlist) : void {
+
+        $wishlist->removeInvitedUser($this);
+        $this->removeInvitedWishlist($wishlist);
+
+    }
+
+
 }

@@ -37,7 +37,7 @@ interface AdminUserManagement
      * @param string $user
      * @return void
      */
-    protected function isValidUsername(string $user): boolean;
+    public function isValidUsername(string $user): bool;
 
 }
 
