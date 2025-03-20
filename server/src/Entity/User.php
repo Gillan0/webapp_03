@@ -1,6 +1,7 @@
 <?php
-
 namespace App\Entity;
+
+include_once __DIR__ . '/../functions/functionDate.php';
 
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -199,6 +200,7 @@ class User implements WishlistManagement
 
         return $this;
     }
+
 
     public function removeWishlist(Wishlist $wishlist): static
     {

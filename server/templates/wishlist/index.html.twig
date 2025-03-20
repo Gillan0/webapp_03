@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Wishlist index{% endblock %}
+
+{% block body %}
+    <h1>Wishlist index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Deadline</th>
+                <th>Name</th>
+                <th>SharingUrl</th>
+                <th>DisplayUrl</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for wishlist in wishlists %}
+            <tr>
+                <td>{{ wishlist.id }}</td>
+                <td>{{ wishlist.deadline ? wishlist.deadline|date('Y-m-d') : '' }}</td>
+                <td>{{ wishlist.name }}</td>
+                <td>{{ wishlist.sharingUrl }}</td>
+                <td>{{ wishlist.displayUrl }}</td>
+                <td>
+                    <a href="{{ path('app_wishlist_show', {'id': wishlist.id}) }}">show</a>
+                    <a href="{{ path('app_wishlist_edit', {'id': wishlist.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_wishlist_new') }}">Create new</a>
+{% endblock %}
