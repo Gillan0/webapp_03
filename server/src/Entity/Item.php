@@ -101,12 +101,12 @@ class Item
 
     public function getItemFromWishlist(): ?Wishlist
     {
-        return $this->itemFromWishlist;
+        return $this->wishlish;
     }
 
-    public function setItemFromWishlist(?Wishlist $itemFromWishlist): static
+    public function setItemFromWishlist(?Wishlist $newWishlist): static
     {
-        $this->itemFromWishlist = $itemFromWishlist;
+        $this->wishlish = $newWishlist;
 
         return $this;
     }
