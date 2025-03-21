@@ -1,11 +1,12 @@
 <?php
 namespace App\Entity;
 
-include_once __DIR__ . '/../functions/functionDate.php';
+use function App\Misc\isValidDate;
 
 use App\Repository\WishlistRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -33,19 +34,21 @@ class Wishlist implements WishlistContributor
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'contributingWishlists')]
+    #[ORM\JoinTable(name: 'contributor')]
     private Collection $contributors;
 
     /**
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'invitedWishlists')]
+    #[ORM\JoinTable(name: 'invitation')]
     private Collection $invitedUser;
 
 
     /**
      * @var Collection<int, Item>
      */
-    #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'itemFromWishlist', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'wishlist', orphanRemoval: true)]
     private Collection $items;
 
     #[ORM\ManyToOne(inversedBy: 'wishlists')]
@@ -71,10 +74,10 @@ class Wishlist implements WishlistContributor
 
     public function setDeadline(\DateTimeInterface $deadline): static
     {
+        
         if (!isValidDate($deadline)){
             throw new InvalidArgumentException("The deadline of the wishlist is not set with the proper format (Y-m-d H:i:s) or is set in the past.");
         }
-
         $this->deadline = $deadline;
 
         return $this;
@@ -219,7 +222,16 @@ class Wishlist implements WishlistContributor
         return $this;
     }
 
-
+    /**
+     * Purchases an {@link Item} from the wishlist
+     * Removes the item from the wishlist and replaces it with a {@link PurchasedItem}
+     * in the Item collection
+     * 
+     * @param \App\Entity\User $user
+     * @param \App\Entity\Item $item
+     * @param string $proof
+     * @return PurchasedItem
+     */
     public function purchase(User $user, Item $item, string $proof) : PurchasedItem {
 
         $this->items->removeElement($item);
@@ -239,21 +251,29 @@ class Wishlist implements WishlistContributor
         return $purchased_item;
     }
 
+    /**
+     * Returns the 5 most expensive items
+     * 
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getMostExpensiveItems() : Collection {
+        $criteria = Criteria::create()->orderBy(['price' => Criteria::DESC]);
 
-    ########################## NOS METHODES ###########################
+        $sortedItems = $this->items->matching($criteria);
 
-    // Get the 5 most expansive items from the wishlist
-    public function getMostExpensiveItems() : array {
-        $higherPrices = array();
-        foreach ($this->items as $item){
-            $higherPrices = $item.getPrice();
-        }
-        $higherPrices.sort();
-        return array_slice($higherPrices, -5);
+        return $sortedItems->slice(0, 5);
     }
 
 
-    // Check the validity of the item creation parameters
+    /**
+     * Check the validity of the item creation parameters
+     * 
+     * @param string $titre
+     * @param string $description
+     * @param string $url
+     * @param float $price
+     * @return bool
+     */
     private function isValidItemParameters(string $titre, string $description, string $url, float $price) : bool {
         if (strlen($titre)>20){
             return false;

@@ -30,7 +30,8 @@ interface Login
      * Checks that username and password are valid (ie length, type of characters)
      */
     public function isValidCredentials(string $username,
-                                string $password) : bool;
+                                        string $password,
+                                        string $email) : bool;
 
 }
 

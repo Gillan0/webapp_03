@@ -9,28 +9,29 @@ use Exception;
  * Represents an item part of a {@link Wishlist}
  */
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
+#[ORM\InheritanceType('JOINED')]
 class Item
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    protected ?int $id = null;
 
     #[ORM\Column(length: 20)]
-    private ?string $title = null;
+    protected ?string $title = null;
 
     #[ORM\Column(length: 500)]
-    private ?string $description = null;
+    protected ?string $description = null;
 
     #[ORM\Column]
-    private ?float $price = null;
+    protected ?float $price = null;
 
     #[ORM\Column(length: 200)]
-    private ?string $url = null;
+    protected ?string $url = null;
 
     #[ORM\ManyToOne(inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Wishlist $itemFromWishlist = null;
+    protected ?Wishlist $wishlish = null;
 
     public function getId(): ?int
     {
@@ -110,21 +111,21 @@ class Item
         return $this;
     }
 
-    private function isValidTitle(string $title) {
+    protected function isValidTitle(string $title) {
         if (strlen($title) > 20) {
             return false;
         }
         return true;
     }
 
-    private function isValidUrl(string $url) {
+    protected function isValidUrl(string $url) {
         if (strlen($url) > 200) {
             return false;
         }
         return true;
     }
 
-    private function isValidDescription(string $desc) {
+    protected function isValidDescription(string $desc) {
         if (strlen($desc) > 500) {
             return false;
         }

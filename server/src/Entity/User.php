@@ -1,7 +1,7 @@
 <?php
 namespace App\Entity;
 
-include_once __DIR__ . '/../functions/functionDate.php';
+//include_once __DIR__ . "/../misc/functionDate.php";
 
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -33,14 +33,14 @@ class User implements WishlistManagement
      * @var Collection<int, Wishlist>
      */
     #[ORM\ManyToMany(targetEntity: Wishlist::class, inversedBy: 'contributors')]
-    #[ORM\JoinTable(name: 'user_contributing_wishlists')] // Nom unique
+    #[ORM\JoinTable(name: 'user_contributing_wishlists')]
     private Collection $contributingWishlists;
 
     /**
      * @var Collection<int, Wishlist>
      */
     #[ORM\ManyToMany(targetEntity: Wishlist::class, inversedBy: 'invitedUser')]
-    #[ORM\JoinTable(name: 'user_invited_wishlists')] // Nom unique
+    #[ORM\JoinTable(name: 'user_invited_wishlists')]
     private Collection $invitedWishlists;
 
     /**
