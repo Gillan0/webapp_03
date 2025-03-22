@@ -1,0 +1,51 @@
+#header-bandeau {
+    background-color: #343a40;  /* Couleur de fond du bandeau */
+    color: white;  /* Couleur du texte */
+    padding: 10px 0;  /* Espacement vertical */
+    position: fixed;  /* Fixe le bandeau en haut */
+    top: 0;
+    left: 0;
+    width: 100%;  /* Prend toute la largeur de la page */
+    z-index: 9999;  /* S'assurer qu'il reste au-dessus des autres éléments */
+
+    display: flex;
+    align-items: center;  /* Aligner verticalement */
+    justify-content: space-between;  /* Espacer les éléments de manière égale */
+    max-width: 1200px;  /* Largeur maximale */
+    margin: 0 auto;  /* Centrer le contenu */
+}
+
+#header-bandeau .container {
+    display: flex;
+    align-items: center;  /* Aligner verticalement */
+    justify-content: space-between;  /* Espacer les éléments de manière égale */
+    max-width: 1200px;  /* Largeur maximale */
+    margin: 0 auto;  /* Centrer le contenu */
+    padding: 0 20px;  /* Padding horizontal */
+}
+
+#header-bandeau .buttons {
+    display: flex;
+    gap: 10px;  /* Espacement entre les boutons */
+}
+
+#header-bandeau .btn {
+    background-color: #007bff;  /* Couleur de fond par défaut */
+    color: white;  /* Couleur du texte */
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;  /* Bordures arrondies */
+    font-weight: bold;
+}
+
+#header-bandeau .btn:hover {
+    background-color: #0056b3;  /* Couleur au survol */
+}
+
+#header-bandeau .btn-secondary {
+    background-color: #6c757d;  /* Bouton secondaire */
+}
+
+#header-bandeau .btn-secondary:hover {
+    background-color: #5a6368;  /* Couleur au survol du bouton secondaire */
+}

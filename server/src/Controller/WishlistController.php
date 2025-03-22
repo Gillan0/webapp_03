@@ -84,7 +84,7 @@ final class WishlistController extends AbstractController
 
 
 
-    #[Route('/{id}', name: 'app_wishlist_add', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_wishlist_add', methods: ['GET','POST'])]
     public function add(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
