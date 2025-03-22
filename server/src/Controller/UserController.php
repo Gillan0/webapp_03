@@ -81,7 +81,7 @@ final class UserController extends AbstractController
 
 
     ############### Controllers ajoutés ########################
-
+/*
     #[Route('/account/myWishlists', name: 'app_list_wishlists', methods: ['POST'])]
     public function show_list_wishlists(User $user, EntityManagerInterface $entityManager): Response
     {      
@@ -101,7 +101,7 @@ final class UserController extends AbstractController
         ]);
 
     }
-
+*/
 
     #[Route('/{username}/myWishlists/invitationAccepted', name: 'app_user_wishlist_accepted', methods: ['POST'])]
     public function accept(Request $request, User $user, EntityManagerInterface $entityManager): Response
@@ -117,7 +117,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/{username}/myWishlists/invitationRefused', name: 'app_user_wishlist_refused', methods: ['POST'])]
-    public function accept(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function refuse(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
             $wishlist = $request->request->get('invitedWishlist');
