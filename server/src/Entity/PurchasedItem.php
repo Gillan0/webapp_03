@@ -6,6 +6,13 @@ use App\Repository\PurchasedItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PurchasedItemRepository::class)]
+/**
+ * Represents an {@link Item} which has been purchased.
+ * A congratulary message and a purchase proof are added to the former Item.
+ * 
+ * @author Antonino Gillard <antonino.gillard@imt-atlantique.net>
+ * @author Lucien Duhamel <lucien.duhamel@imt-atlantique.net>
+ */
 class PurchasedItem extends Item
 {
 
