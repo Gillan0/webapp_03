@@ -1,7 +1,7 @@
 <?php
 namespace App\Entity;
 
-use function App\Misc\isValidDate;
+use Exception;
 
 use App\Repository\WishlistRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -11,7 +11,15 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: WishlistRepository::class)]
-class Wishlist implements WishlistContributor
+/**
+ * Represents a Wishlist.
+ * A wishlist contains {@link Item} which can be purchased by contributors and its author.
+ * 
+ * @author Antonino Gillard <antonino.gillard@imt-atlantique.net>
+ * @author Lucien Duhamel <lucien.duhamel@imt-atlantique.net> 
+ * 
+ */
+class Wishlist implements WishlistContributor, ItemManagement
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -75,7 +83,7 @@ class Wishlist implements WishlistContributor
     public function setDeadline(\DateTimeInterface $deadline): static
     {
         
-        if (!isValidDate($deadline)){
+        if (!UtilFilters::isValidDate($deadline)){
             throw new InvalidArgumentException("The deadline of the wishlist is not set with the proper format (Y-m-d H:i:s) or is set in the past.");
         }
         $this->deadline = $deadline;
@@ -83,6 +91,11 @@ class Wishlist implements WishlistContributor
         return $this;
     }
 
+    /**
+     * Returns name of the wishlist
+     * 
+     * @return ?string
+     */
     public function getName(): ?string
     {
         return $this->name;
@@ -185,6 +198,15 @@ class Wishlist implements WishlistContributor
      */
     public function getItems(SortOrder $sortOrder): Collection
     {
+        if ($sortOrder->equals(SortOrder::PriceAscending)) {
+            return $this->items->sortBy(fn(Item $item) => $item->getPrice());
+        }
+
+        if ($sortOrder->equals(SortOrder::PriceDescending)) {
+            return $this->items->sortByDesc(fn(Item $item) => $item->getPrice());
+        }
+
+        // Default value
         return $this->items;
     }
 
@@ -192,7 +214,7 @@ class Wishlist implements WishlistContributor
     {
         if (!$this->items->contains($item)) {
             $this->items->add($item);
-            $item->setItemFromWishlist($this);
+            $item->setWishlist($this);
         }
 
         return $this;
@@ -202,14 +224,18 @@ class Wishlist implements WishlistContributor
     {
         if ($this->items->removeElement($item)) {
             // set the owning side to null (unless already changed)
-            if ($item->getItemFromWishlist() === $this) {
-                $item->setItemFromWishlist(null);
+            if ($item->getWishlist() === $this) {
+                $item->setWishlist(null);
             }
         }
 
         return $this;
     }
 
+    /**
+     * Returns author account of the wishlist
+     * @return ?User
+     */
     public function getAuthor(): ?User
     {
         return $this->author;
@@ -289,6 +315,84 @@ class Wishlist implements WishlistContributor
         }
 
         return true;
+    }
+
+    /**
+     * Computes sum of all item price of the wishlist
+     * 
+     * @return float|int
+     */
+    public function getTotalPrice() : float {
+        $price = 0.;
+        foreach ($this->items as $item) {
+            $price += $item->getPrice();
+        }
+        return $price;
+    }
+
+    /**
+     * Adds an {@link Item} to the Wishlist
+     * 
+     * @param string $title
+     * @param string $description
+     * @param string $url
+     * @return void
+     */
+    public function addItemParams(string $title, string $description, string $url, $price) : Item {
+        if (!$this->isValidItemParameters($title, $description, $url, $price)) {
+            throw new Exception("Illegal parameters");
+        }
+
+        $item = new Item();
+
+        $item->setTitle($title);
+        $item->setDescription($description);
+        $item->setUrl($url);
+        $item->setPrice($price);
+
+        return $item;
+    }
+
+    /**
+     * Edits an {@link Item} of the Wishlist
+     * 
+     * @param \App\Entity\Item $item
+     * @param string $title
+     * @param string $description
+     * @param string $url
+     * @return void
+     */
+    public function editItemParams(Item $item, string $title, string $description, string $url, float $price) : Item {
+        if (!$this->items->contains($item)) {
+            throw new Exception("Item not in wishlist");
+        }
+
+        if (!$this->isValidItemParameters($title, $description, $url, $price)) {
+            throw new Exception("Illegal parameters");
+        }
+
+        $item->setTitle($title);
+        $item->setDescription($description);
+        $item->setUrl($url);
+        $item->setPrice($price);
+
+        return $item;
+    }
+
+    /**
+     * Removes an {@link Item} of the Wishlist
+     * 
+     * @param \App\Entity\Item $item
+     * @param string $title
+     * @param string $description
+     * @param string $url
+     * @return void
+     */
+    public function removeItemParams(Item $item) : void {
+        if (!$this->items->contains($item)) {
+            throw new Exception("Item not in wishlist");
+        }
+        $this->removeItem($item);
     }
 
 

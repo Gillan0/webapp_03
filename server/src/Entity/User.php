@@ -1,17 +1,15 @@
 <?php
 namespace App\Entity;
 
-//include_once __DIR__ . "/../misc/functionDate.php";
-
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
-use function App\Misc\isValidDate;
 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\InheritanceType('JOINED')]
 /**
  * Represents a user account
  * A User account can manage {@link Wishlist}, invite users to contribute to them,
@@ -253,7 +251,7 @@ class User implements WishlistManagement
             throw new Exception("Wishlist name already taken");
         }
 
-        if (!isValidDate($date)) {
+        if (!UtilFilters::isValidDate($date)) {
             throw new Exception("Illegal date");
         }
 
@@ -286,7 +284,7 @@ class User implements WishlistManagement
             throw new Exception("Name too long");
         }
 
-        if (!isValidDate($date)) {
+        if (!UtilFilters::isValidDate($date)) {
             throw new Exception("Illegal date");
         }
         

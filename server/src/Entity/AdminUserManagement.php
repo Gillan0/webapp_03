@@ -5,6 +5,9 @@ namespace App\Entity;
 /**
  * Interface in charge of {@link User} management by {@link Admin} accounts.
  * An admin can lock / unlock and delete user accounts. 
+ * 
+ * @author Antonino Gillard <antonino.gillard@imt-atlantique.net>
+ * @author Lucien Duhamel <lucien.duhamel@imt-atlantique.net> 
  */
 interface AdminUserManagement 
 {

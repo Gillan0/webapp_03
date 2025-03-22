@@ -5,11 +5,16 @@ namespace App\Entity;
 use App\Repository\ItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
-/**
- * Represents an item part of a {@link Wishlist}
- */
+
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
 #[ORM\InheritanceType('JOINED')]
+/**
+ * Represents an Item, element of a {@link Wishlist}
+ * Each item has a price, title, description.
+ * 
+ * @author Antonino Gillard <antonino.gillard@imt-atlantique.net>
+ * @author Lucien Duhamel <lucien.duhamel@imt-atlantique.net>
+ */
 class Item
 {
     #[ORM\Id]
@@ -99,12 +104,12 @@ class Item
         return $this;
     }
 
-    public function getItemFromWishlist(): ?Wishlist
+    public function getWishlist(): ?Wishlist
     {
         return $this->wishlish;
     }
 
-    public function setItemFromWishlist(?Wishlist $newWishlist): static
+    public function setWishlist(?Wishlist $newWishlist): static
     {
         $this->wishlish = $newWishlist;
 
