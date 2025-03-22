@@ -78,4 +78,57 @@ final class UserController extends AbstractController
 
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
     }
+
+
+    ############### Controllers ajoutés ########################
+
+    #[Route('/account/myWishlists', name: 'app_list_wishlists', methods: ['POST'])]
+    public function show_list_wishlists(User $user, EntityManagerInterface $entityManager): Response
+    {      
+        $user = $userRepository->find($user->id); #on suppose ici que l'utilise est bien identifié et existe bien dans la bd
+        $wishlists = $user->getWishlists(); 
+        $invitedWishlists = $user->getInvitedWishlists(); 
+        $authors = array();
+        foreach ($wishlists as $wishlist){
+            $authors = $wishlist->getAuthor();
+        }
+
+        return $this->render('wishlist/list_wishlist.html.twig', [
+            'user'=>$user,
+            'wishlists' => $wishlists,
+            'invitedWishlists' => $invitedWishlists,
+            'authors' => $authors,
+        ]);
+
+    }
+
+
+    #[Route('/{username}/myWishlists/invitationAccepted', name: 'app_user_wishlist_accepted', methods: ['POST'])]
+    public function accept(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('accept'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            $wishlist = $request->request->get('invitedWishlist');
+            $user->addWishlist($wishlist); 
+            $entityManager->flush();
+            $entityManager->refresh($user);
+        }
+
+        return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{username}/myWishlists/invitationRefused', name: 'app_user_wishlist_refused', methods: ['POST'])]
+    public function accept(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            $wishlist = $request->request->get('invitedWishlist');
+            $user->removeInvitedWishlist($wishlist);
+            $entityManager->flush();
+            $entityManager->refresh($user);
+        }
+
+        return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
+    }
+
+
+
 }
