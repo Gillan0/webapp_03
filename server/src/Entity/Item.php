@@ -8,6 +8,10 @@ use Exception;
 
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
 #[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorMap([
+    "item" => Item::class,
+    "purchasedItem" => PurchasedItem::class
+])]
 /**
  * Represents an Item, element of a {@link Wishlist}
  * Each item has a price, title, description.

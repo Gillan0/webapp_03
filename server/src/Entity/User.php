@@ -10,6 +10,10 @@ use Exception;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorMap([
+    "user" => User::class,
+    "admin" => Admin::class
+])]
 /**
  * Represents a user account
  * A User account can manage {@link Wishlist}, invite users to contribute to them,
