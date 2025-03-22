@@ -9,6 +9,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Exception;
 
 #[ORM\Entity(repositoryClass: WebsiteRepository::class)]
+/**
+ * Main class of the namespace. 
+ * Represents the service and directly contains all {@link User} accounts ({@link Admin} included).
+ * 
+ * @author Antonino Gillard <antonino.gillard@imt-atlantique.net>
+ * @author Lucien Duhamel <lucien.duhamel@imt-atlantique.net>
+ */
 class Website implements Login, AdminUserManagement, AdminDashboard
 {
     #[ORM\Id]
@@ -63,48 +70,76 @@ class Website implements Login, AdminUserManagement, AdminDashboard
     }
 
 
-     /**
-     * Summary of getMostExpensiveItems
+    /**
+     * Gets the top 5 most expensive items in a wishlist
+     * 
      * @param \App\Entity\Wishlist $wishlist
      * @return Doctrine\Common\Collections\Collection
      */
     public function getMostExpensiveItems(Wishlist $wishlist) : Collection {
-        // TO DO //
-        return new Collection();
+        $items =$wishlist->getItems(SortOrder::PriceDescending);
+
+        return $items->slice(0,5);
     }
 
     /**
-     * Summary of getMostExpensiveWishlists
+     * Gets the top 5 most expensive wishlists in the service
+     * 
      * @param \App\Entity\Wishlist $wishlist
      * @return Doctrine\Common\Collections\Collection
      */
-    public function getMostExpensiveWishlists(Wishlist $wishlist) : Collection {
-        // TO DO //
-        return new Collection();
+    public function getMostExpensiveWishlists() : Collection {
+        Criteria::create()->orderBy(['totalPrice' => Criteria::DESC]);
+        
+        // Fetches all wishlists across the service
+        $wishlists = new Collection();
+        foreach ($this->users as $user) {
+            foreach ($user->getWishlist() as $wishlist) {
+                $wishlists->add($wishlist);
+            }
+        } 
+        
+        // Assigns a price to the wishlists
+        $wishlistsWithPrice = $wishlists->map(fn($wishlist) => [
+            'wishlist' => $wishlist,
+            'totalPrice' => $wishlist->getTotalPrice()
+        ])->toArray();
+    
+        // Sorts them by price and returns the top 5 most expensive
+        usort($wishlistsWithPrice, fn($a, $b) => $b['totalPrice'] <=> $a['totalPrice']);
+        $topWishlists = array_slice($wishlistsWithPrice, 0, 5);
+        return new Collection(array_map(fn($data) => $data['wishlist'], $topWishlists));
     }
 
     /**
      * Locks a user out of the service
      * 
-     * @param \App\Entity\Admin $admin 
+     * @param \App\Entity\Admin $admin
      * @param \App\Entity\User $user
+     * @throws \Exception user or admin account not recognized.
      * @return void
      */
     public function lockUser(Admin $admin, User $user): void {
-        // TO DO
+
+        if (!$this->users->contains($admin) || !$this->users->contains($user)) {
+            throw new Exception("User account or Admin account not in table");
+        }
 
         $user->setIsLocked(true);
     }
 
     /**
-     * Unlocks a user
-     * 
-     * @param \App\Entity\Admin $admin 
+     * Unlocks a {@link User} account
+     *
+     * @param \App\Entity\Admin $admin
      * @param \App\Entity\User $user
+     * @throws \Exception user or admin account not recognized
      * @return void
-     */    
+     */
     public function unlockUser(Admin $admin, User $user): void {
-        // TO DO //
+        if (!$this->users->contains($admin) || !$this->users->contains($user)) {
+            throw new Exception("User account or Admin account not in table");
+        }
 
         $user->setIsLocked(false);
     }
@@ -114,11 +149,13 @@ class Website implements Login, AdminUserManagement, AdminDashboard
      * 
      * @param \App\Entity\Admin $admin
      * @param \App\Entity\User $user
+     * @throws \Exception user or admin account not recognized
      * @return void
      */
     public function deleteUser(Admin $admin, User $user): void {
-        // TO DO //
-        
+        if (!$this->users->contains($admin) || !$this->users->contains($user)) {
+            throw new Exception("User account or Admin account not in table");
+        }
 
         $this->users->removeElement($user);
     }
@@ -136,18 +173,32 @@ class Website implements Login, AdminUserManagement, AdminDashboard
     }
 
     /**
-     * Creates a new user
+     * Creates a new user and returns the newly created {@link User} account
      * 
      * @param string $username
      * @param string $password
      * @param string $email
-     * @return User 
+     * @throws \Exception invalid parameters
+     * @return User Newly created account
      */
     public function createUser(string $username,
                                 string $password,
                                 string $email): User  {
         if (!$this->isValidCredentials($username, $password, $email)) {
             throw new Exception("Invalid account parameters");
+        }
+
+        // Check is username if not already used
+        $isUsernameAvailable = true;
+        foreach ($this->users as $user) {
+            if ($user->getUsername() == $username) {
+                $isUsernameAvailable = false;
+                break;
+            }
+        }
+
+        if (!$isUsernameAvailable) {
+            throw new Exception("Username already used");
         }
 
         // Building Object
@@ -161,29 +212,80 @@ class Website implements Login, AdminUserManagement, AdminDashboard
     }
 
     /**
-     * Handles login
+     * Handles login and returns the {@link User} account if credentials are correct
      * 
      * @param string $username
      * @param string $password
-     * @return User
+     * @throws \Exception
+     * @return \App\Entity\User
      */
     public function login(string $username, string $password) : User {
-        if (!$this->isValidCredentials($username, $password, null)) {
+        if (strlen($username) > 20 || strlen($password) > 20) {
             throw new Exception("Illegal arguments");
         }
 
-        $user = $this->users->get();
-        return $user;
+        // Searches user
+        $correspondingUser = null;
+        foreach ($this->users as $user) {
+            if ($username == $user->getUsername() && $password == $user->getPassword()) {
+                $correspondingUser = $user;
+                break;
+            }
+        }
+
+        // Check if user found
+        if (empty($correspondingUser)) {
+            throw new Exception("Wrong credentials");
+        }
+
+        return $correspondingUser;
     }
 
     /**
      * Checks that username and password are valid (ie length, type of characters)
+     * 
+     * @param string $username
+     * @param string $password
+     * @param string $email
+     * @return bool if parameters are valid 
      */
     public function isValidCredentials(string $username,
                                         string $password,
                                         string $email) : bool {
-        // TO DO //
+        if (strlen($username) >20) {
+            return false;
+        }
+        if (strlen($password) >20) {
+            return false;
+        }
+        if (strlen($email) >50) {
+            return false;
+        }
         return true;                                   
+    }
+
+    /**
+     * Returns a user if username matches
+     * 
+     * @param string $username
+     * @throws \Exception
+     * @return \App\Entity\User
+     */
+    public function findUserByUsername(string $username) : User {
+        $correspondingUser = null;
+        foreach ($this->users as $user) {
+            if ($username == $user->getUsername()) {
+                $correspondingUser = $user;
+                break;
+            }
+        }
+
+        // Check if user found
+        if (empty($correspondingUser)) {
+            throw new Exception("No user with such username");
+        }
+
+        return $correspondingUser;
     }
 
 }

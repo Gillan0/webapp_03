@@ -2,6 +2,10 @@
 
 namespace App\Entity;
 
+/**
+ * Interface in charge of {@link User} management by {@link Admin} accounts.
+ * An admin can lock / unlock and delete user accounts. 
+ */
 interface AdminUserManagement 
 {
 

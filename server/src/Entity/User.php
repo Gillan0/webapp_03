@@ -7,8 +7,19 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
+use function App\Misc\isValidDate;
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+/**
+ * Represents a user account
+ * A User account can manage {@link Wishlist}, invite users to contribute to them,
+ * and directly contribute to them
+ * 
+ * @author Antonino Gillard <antonino.gillard@imt-atlantique.net>
+ * @author Lucien Duhamel <lucien.duhamel@imt-atlantique.net>
+ */
 class User implements WishlistManagement
 {
     #[ORM\Id]
@@ -184,6 +195,8 @@ class User implements WishlistManagement
     }
 
     /**
+     * Returns user's wishlist. Not invitation / contributing wishlists.
+     * 
      * @return Collection<int, Wishlist>
      */
     public function getWishlists(): Collection
@@ -214,39 +227,126 @@ class User implements WishlistManagement
         return $this;
     }
 
+    /**
+     * Creates a {@link Wishlist}
+     * 
+     * @param string $name name of the wishlist
+     * @param \DateTime $date deadline of the wishlist
+     * @throws \Exception illegal parameters
+     * @return Wishlist
+     */
     public function createWishlist(string $name, \DateTime $date) : Wishlist {
         
+        if (strlen($name) > 20) {
+            throw new Exception("Name too long");
+        }
+
+        $isNameTaken = false;
+        foreach ($this->wishlists as $wishlist) {
+            if ($wishlist->getName() == $name) {
+                $isNameTaken = true;
+                break;
+            }
+        }
+
+        if ($isNameTaken) {
+            throw new Exception("Wishlist name already taken");
+        }
+
+        if (!isValidDate($date)) {
+            throw new Exception("Illegal date");
+        }
+
+        // Creates new Wishlist
         $wishlist = new Wishlist();
+        $wishlist->setAuthor($this);
         $wishlist->setName($name);
         $wishlist->setDeadline($date);
-        
+        $this->wishlists->add($wishlist);
+
         return $wishlist;
     }
 
+    /**
+     * Allows the author of a {@link Wishlist} to edit its name / deadline.
+     * 
+     * @param \App\Entity\Wishlist $wishlist
+     * @param string $name
+     * @param \DateTime $date
+     * @throws \Exception
+     * @return Wishlist
+     */
     public function editWishlist(Wishlist $wishlist, string $name, \DateTime $date) : Wishlist {
         
+        if ($wishlist->getAuthor()->equals($this)) {
+            throw new Exception("Only wishlist author can edit a wishlist");
+        }
+
+        if (strlen($name) > 20) {
+            throw new Exception("Name too long");
+        }
+
+        if (!isValidDate($date)) {
+            throw new Exception("Illegal date");
+        }
+        
+
         $wishlist->setName($name);
         $wishlist->setDeadline($date);
         
         return $wishlist;
     }
 
+    /**
+     * Allows the author of a wishlist to delete it
+     * 
+     * @param \App\Entity\Wishlist $wishlist
+     * @throws \Exception
+     * @return void
+     */
     public function deleteWishlist(Wishlist $wishlist) : void {
+
+        if ($wishlist->getAuthor()->equals($this)) {
+            throw new Exception("Only wishlist author can delete it");
+        }
 
         $this->wishlists->removeElement($wishlist);
 
     }
 
+    /**
+     * Sends an invitation to contribute to a wishlist to a user of the service
+     * 
+     * @param string $username
+     * @param \App\Entity\Wishlist $wishlist
+     * @exception \Exception Author didn't send the invitation
+     * @return void
+     */
     public function sendInvitation(string $username, Wishlist $wishlist) : void {
+
+        if (!$wishlist->getAuthor()->equals($this)) {
+            throw new Exception("Only author can invite other users");
+        }
         
-        $user = new User();
+        $user = $this->website->findUser($username);
         $user->addInvitedWishlist($wishlist);
+        $wishlist->addInvitedUser($user);
 
     }
 
+    /**
+     * Accepts an inviation to contribute to a wishlist
+     * 
+     * @param \App\Entity\Wishlist $wishlist
+     * @throws \Exception Not invited to the wishlist
+     * @return void
+     */
     public function acceptInvitation(Wishlist $wishlist) : void {
         
-        
+        if (!$this->invitedWishlists->contains($wishlist)) {
+            throw new Exception("Invitation doesn't exist");
+        }
+
         $wishlist->removeInvitedUser($this);
         $wishlist->addContributor($this);
         $this->removeInvitedWishlist($wishlist);
@@ -254,10 +354,26 @@ class User implements WishlistManagement
 
     }
 
+    /**
+     * Refuses an inviation to contribute to a wishlist
+     * 
+     * @param \App\Entity\Wishlist $wishlist
+     * @throws \Exception Not invited to the wishlist
+     * @return void
+     */
     public function refuseInvitation(Wishlist $wishlist) : void {
+
+        if (!$this->invitedWishlists->contains($wishlist)) {
+            throw new Exception("Invitation doesn't exist");
+        }
 
         $wishlist->removeInvitedUser($this);
         $this->removeInvitedWishlist($wishlist);
+
+    }
+
+    public function equals(User $user):bool {
+        return $this->username == $user->username;
 
     }
 
