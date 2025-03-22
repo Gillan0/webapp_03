@@ -1,27 +1,12 @@
 #header-bandeau {
-    background-color: #343a40;  /* Couleur de fond du bandeau */
-    color: white;  /* Couleur du texte */
-    padding: 10px 0;  /* Espacement vertical */
-    position: fixed;  /* Fixe le bandeau en haut */
-    top: 0;
-    left: 0;
-    width: 100%;  /* Prend toute la largeur de la page */
-    z-index: 9999;  /* S'assurer qu'il reste au-dessus des autres éléments */
-
+    background-color: #343a40;
+    color: white;
+    padding: 10px 0;
+    width: 100%;
     display: flex;
-    align-items: center;  /* Aligner verticalement */
-    justify-content: space-between;  /* Espacer les éléments de manière égale */
-    max-width: 1200px;  /* Largeur maximale */
-    margin: 0 auto;  /* Centrer le contenu */
-}
-
-#header-bandeau .container {
-    display: flex;
-    align-items: center;  /* Aligner verticalement */
-    justify-content: space-between;  /* Espacer les éléments de manière égale */
-    max-width: 1200px;  /* Largeur maximale */
-    margin: 0 auto;  /* Centrer le contenu */
-    padding: 0 20px;  /* Padding horizontal */
+    justify-content: center; /* Centre le contenu dans le bandeau */
+    align-items: center;
+    flex-direction: column;
 }
 
 #header-bandeau .buttons {

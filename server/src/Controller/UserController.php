@@ -11,10 +11,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/user')]
+
 final class UserController extends AbstractController
 {
-    #[Route(name: 'app_user_index', methods: ['GET'])]
+    #[Route('/index', name: 'app_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
         return $this->render('user/index.html.twig', [
@@ -42,7 +42,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
+    #[Route('/{id}/show', name: 'app_user_show', methods: ['GET'])]
     public function show(User $user): Response
     {
         return $this->render('user/show.html.twig', [
@@ -68,7 +68,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
@@ -82,10 +82,36 @@ final class UserController extends AbstractController
 
     ############### Controllers ajoutés ########################
 
-    #[Route('/{username}/myWishlists', name: 'app_list_wishlists', methods: ['GET','POST'])]
-    public function show_list_wishlists(UserRepository $userRepository, User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/login', name: 'app_user_login', methods:  ['GET','POST'])]
+    public function login(UserRepository $userRepository, Request $request): Response
+    {   
+        $user = new User();
+        $form = $this->createFormBuilder($user)
+        ->add('email')
+        ->add('password')
+        ->getForm(); 
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $email = $form->get('email')->getData();
+            $user = $userRepository->findUserByEmail($email);
+            
+            if ($user!=NULL){
+                return $this->redirectToRoute('app_list_wishlists', ['id'=>$user->getId(), 'username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
+            }
+        }
+        $e = "You are not registered or your login/password is invalid";
+        return $this->render('user/login.html.twig', [
+            'form' => $form,
+            'erreur' => $e,
+        ]);
+    }
+
+
+    #[Route('/{id}/myWishlists', name: 'app_list_wishlists', methods: ['GET','POST'])]
+    public function list_wishlists(UserRepository $userRepository, User $user): Response
     {      
-        $user = $userRepository->find($user->id); #on suppose ici que l'utilise est bien identifié et existe bien dans la bd
         $wishlists = $user->getWishlists(); 
         $invitedWishlists = $user->getInvitedWishlists(); 
         $authors = array();
@@ -93,7 +119,7 @@ final class UserController extends AbstractController
             $authors = $wishlist->getAuthor();
         }
 
-        return $this->render('wishlist/list_wishlist.html.twig', [
+        return $this->render('wishlist/list_wishlists.html.twig', [
             'user'=>$user,
             'wishlists' => $wishlists,
             'invitedWishlists' => $invitedWishlists,
@@ -101,7 +127,6 @@ final class UserController extends AbstractController
         ]);
 
     }
-
 
     #[Route('/{username}/myWishlists/invitationAccepted', name: 'app_user_wishlist_accepted', methods: ['GET', 'POST'])]
     public function accept(Request $request, User $user, EntityManagerInterface $entityManager): Response
@@ -129,38 +154,6 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
     }
 
-
-    #[Route('/login', name: 'app_user_login', methods:  ['GET','POST'])]
-    public function login(UserRepository $userRepository, Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createFormBuilder()
-        ->add('username_email', TextType::class, [
-            'label' => 'Username/Email',
-        ])
-        ->add('password', PasswordType::class, [
-            'label' => 'Password',
-        ])
-        ->add('login', SubmitType::class, [
-            'label' => 'Login',
-        ])
-        ->getForm(); 
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-            $user = $userRepository->findOneBySomeField($form->username_email);
-            
-            if ($user!=NULL){
-                return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
-            }
-        }
-        $e = new Exception("You are not registered.");
-        return $this->render('user/login.html.twig', [
-            'form' => $form,
-            'erreur' => $e,
-        ]);
-    }
 
 
     #[Route('/signUp', name: 'app_user_sign_up', methods: ['GET','POST'])]
@@ -196,6 +189,30 @@ final class UserController extends AbstractController
             'form' => $form,
         ]);
     }
+
+
+    #[Route('/{id}/wishlist/add', name: 'app_user_wishlist_add', methods: ['GET','POST'])]
+    public function add(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
+    {
+        // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
+        //     $entityManager->remove($wishlist);
+        //     $entityManager->flush();
+        // }
+
+        // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/wishlist/shared', name: 'app_wishlist_shared', methods: ['GET','POST'])]
+    public function share(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
+    {
+        // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
+        //     $entityManager->remove($wishlist);
+        //     $entityManager->flush();
+        // }
+
+        // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+    }
+
 
 
 

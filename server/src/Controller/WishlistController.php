@@ -82,17 +82,16 @@ final class WishlistController extends AbstractController
 
     ############### Controllers ajoutés ########################
 
-
-
-    #[Route('/{id}', name: 'app_wishlist_add', methods: ['GET','POST'])]
+    #[Route('/{id}', name: 'app_wishlist_shared', methods: ['GET','POST'])]
     public function add(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($wishlist);
-            $entityManager->flush();
-        }
+        // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
+        //     $entityManager->remove($wishlist);
+        //     $entityManager->flush();
+        // }
 
-        return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+        // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
     }
+
 }
 
