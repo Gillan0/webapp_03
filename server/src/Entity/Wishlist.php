@@ -42,14 +42,12 @@ class Wishlist implements WishlistContributor, ItemManagement
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'contributingWishlists')]
-    #[ORM\JoinTable(name: 'contributor')]
     private Collection $contributors;
 
     /**
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'invitedWishlists')]
-    #[ORM\JoinTable(name: 'invitation')]
     private Collection $invitedUser;
 
 

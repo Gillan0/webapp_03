@@ -1,10 +1,41 @@
 --
+-- Déchargement des données de la table `website`
+--
+
+INSERT INTO `website` (`id`) VALUES
+(1);
+
+
+--
+-- Déchargement des données de la table `user`
+--
+
+INSERT INTO `user` (`id`, `website_id`, `username`, `password`, `email`, `is_locked`, `dtype`) VALUES
+(1, 1, 'greg', '0000', 'grec@gmail.com', 0, 'user'),
+(2, 1, 'jose', 'fabio', 'jose@gmail.com', 0, 'user'),
+(3, 1, 'mamou', 'ocaml', 'mamou@gmail.com', 0, 'user'),
+(4, 1, 'elodie', 'rgpd', 'elodie@imt-atlantique.net', 0, 'user'),
+(5, 1, 'maud', 'fablab', 'maud@gmail.com', 0, 'admin'),
+(6, 1, 'sylvie', 'fise', 'sylvie@orange.fr', 0, 'admin');
+
+
+--
 -- Déchargement des données de la table `admin`
 --
 
 INSERT INTO `admin` (`id`) VALUES
 (5),
 (6);
+
+
+--
+-- Déchargement des données de la table `wishlist`
+--
+
+INSERT INTO `wishlist` (`id`, `author_id`, `deadline`, `name`, `sharing_url`, `display_url`) VALUES
+(1, 5, '2026-01-31', 'Fablab', 'URL TO BE ADDED LATER', 'URL TO BE ADDED LATER'),
+(2, 3, '2025-08-20', 'Cadeau Elodie', 'URL TO BE ADDED LATER', 'URL TO BE ADDED LATER');
+
 
 --
 -- Déchargement des données de la table `item`
@@ -24,17 +55,6 @@ INSERT INTO `item` (`id`, `wishlish_id`, `title`, `description`, `price`, `url`,
 INSERT INTO `purchased_item` (`id`, `buyer_id`, `congratulory_message`, `purchase_proof`) VALUES
 (5, 6, 'Bonne chance pour tes rattrapages !', 'LIEN VERS LE FICHIER');
 
---
--- Déchargement des données de la table `user`
---
-
-INSERT INTO `user` (`id`, `website_id`, `username`, `password`, `email`, `is_locked`, `dtype`) VALUES
-(1, 1, 'greg', '0000', 'grec@gmail.com', 0, 'user'),
-(2, 1, 'jose', 'fabio', 'jose@gmail.com', 0, 'user'),
-(3, 1, 'mamou', 'ocaml', 'mamou@gmail.com', 0, 'user'),
-(4, 1, 'elodie', 'rgpd', 'elodie@imt-atlantique.net', 0, 'user'),
-(5, 1, 'maud', 'fablab', 'maud@gmail.com', 0, 'admin'),
-(6, 1, 'sylvie', 'fise', 'sylvie@orange.fr', 0, 'admin');
 
 --
 -- Déchargement des données de la table `user_contributing_wishlists`
@@ -53,18 +73,3 @@ INSERT INTO `user_contributing_wishlists` (`user_id`, `wishlist_id`) VALUES
 
 INSERT INTO `user_invited_wishlists` (`user_id`, `wishlist_id`) VALUES
 (2, 1);
-
---
--- Déchargement des données de la table `website`
---
-
-INSERT INTO `website` (`id`) VALUES
-(1);
-
---
--- Déchargement des données de la table `wishlist`
---
-
-INSERT INTO `wishlist` (`id`, `author_id`, `deadline`, `name`, `sharing_url`, `display_url`) VALUES
-(1, 5, '2026-01-31', 'Fablab', 'URL TO BE ADDED LATER', 'URL TO BE ADDED LATER'),
-(2, 3, '2025-08-20', 'Cadeau Elodie', 'URL TO BE ADDED LATER', 'URL TO BE ADDED LATER');
