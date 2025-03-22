@@ -50,7 +50,7 @@ final class WishlistController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]
+    #[Route('/{username}/myWishlists/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(WishlistType::class, $wishlist);
@@ -78,4 +78,21 @@ final class WishlistController extends AbstractController
 
         return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
     }
+
+
+    ############### Controllers ajoutés ########################
+
+
+
+    #[Route('/{id}', name: 'app_wishlist_add', methods: ['POST'])]
+    public function add(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($wishlist);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+    }
 }
+

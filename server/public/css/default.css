@@ -1,0 +1,54 @@
+
+
+  body {
+    background-color: lightcyan;
+    text-align: center;
+    align-items: center; 
+    font-family: "Papyrus";
+  }
+  
+  
+
+ 
+  #logo{
+    width: 100px;
+    height: 100px;
+  }
+
+
+
+
+  .container {
+    display: flex;
+    align-items: left; /* Centre horizontalement */
+    text-align: top;
+    justify-content: flex-start; /* Aligne en haut */
+    border-style: double ;
+    border-color: black ; 
+    background-color: darkcyan;
+    gap: 15px; /* Espace entre le logo et le titre */
+    padding: 10px;
+    margin-bottom: 50px;
+  }
+
+
+  .table {
+    margin: 0 auto;           /* Centre horizontalement */
+    border-collapse: collapse; /* Pour que les bordures soient jointes */
+    width: 80%;       
+    margin-bottom: 30px;        
+  }
+
+  .table th{
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #ddd;  /* Bordures légères pour séparer les cellules */
+      background-color: cadetblue;
+  }
+
+  .table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;  /* Bordures légères pour séparer les cellules */
+}
+  
