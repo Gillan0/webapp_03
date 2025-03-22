@@ -1,16 +1,25 @@
 <?php
 namespace App\Entity;
 
-include_once __DIR__ . '/../functions/functionDate.php';
+use Exception;
 
 use App\Repository\WishlistRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: WishlistRepository::class)]
-class Wishlist
+/**
+ * Represents a Wishlist.
+ * A wishlist contains {@link Item} which can be purchased by contributors and its author.
+ * 
+ * @author Antonino Gillard <antonino.gillard@imt-atlantique.net>
+ * @author Lucien Duhamel <lucien.duhamel@imt-atlantique.net> 
+ * 
+ */
+class Wishlist implements WishlistContributor, ItemManagement
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -33,19 +42,21 @@ class Wishlist
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'contributingWishlists')]
+    #[ORM\JoinTable(name: 'contributor')]
     private Collection $contributors;
 
     /**
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'invitedWishlists')]
+    #[ORM\JoinTable(name: 'invitation')]
     private Collection $invitedUser;
 
 
     /**
      * @var Collection<int, Item>
      */
-    #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'itemFromWishlist', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'wishlist', orphanRemoval: true)]
     private Collection $items;
 
     #[ORM\ManyToOne(inversedBy: 'wishlists')]
@@ -71,15 +82,20 @@ class Wishlist
 
     public function setDeadline(\DateTimeInterface $deadline): static
     {
-        if (!isValidDate($deadline)){
+        
+        if (!UtilFilters::isValidDate($deadline)){
             throw new InvalidArgumentException("The deadline of the wishlist is not set with the proper format (Y-m-d H:i:s) or is set in the past.");
         }
-
         $this->deadline = $deadline;
 
         return $this;
     }
 
+    /**
+     * Returns name of the wishlist
+     * 
+     * @return ?string
+     */
     public function getName(): ?string
     {
         return $this->name;
@@ -180,8 +196,17 @@ class Wishlist
     /**
      * @return Collection<int, Item>
      */
-    public function getItems(): Collection
+    public function getItems(SortOrder $sortOrder): Collection
     {
+        if ($sortOrder->equals(SortOrder::PriceAscending)) {
+            return $this->items->sortBy(fn(Item $item) => $item->getPrice());
+        }
+
+        if ($sortOrder->equals(SortOrder::PriceDescending)) {
+            return $this->items->sortByDesc(fn(Item $item) => $item->getPrice());
+        }
+
+        // Default value
         return $this->items;
     }
 
@@ -189,7 +214,7 @@ class Wishlist
     {
         if (!$this->items->contains($item)) {
             $this->items->add($item);
-            $item->setItemFromWishlist($this);
+            $item->setWishlist($this);
         }
 
         return $this;
@@ -199,14 +224,18 @@ class Wishlist
     {
         if ($this->items->removeElement($item)) {
             // set the owning side to null (unless already changed)
-            if ($item->getItemFromWishlist() === $this) {
-                $item->setItemFromWishlist(null);
+            if ($item->getWishlist() === $this) {
+                $item->setWishlist(null);
             }
         }
 
         return $this;
     }
 
+    /**
+     * Returns author account of the wishlist
+     * @return ?User
+     */
     public function getAuthor(): ?User
     {
         return $this->author;
@@ -219,21 +248,58 @@ class Wishlist
         return $this;
     }
 
+    /**
+     * Purchases an {@link Item} from the wishlist
+     * Removes the item from the wishlist and replaces it with a {@link PurchasedItem}
+     * in the Item collection
+     * 
+     * @param \App\Entity\User $user
+     * @param \App\Entity\Item $item
+     * @param string $proof
+     * @return PurchasedItem
+     */
+    public function purchase(User $user, Item $item, string $proof) : PurchasedItem {
 
-    ########################## NOS METHODES ###########################
+        $this->items->removeElement($item);
 
-    // Get the 5 most expansive items from the wishlist
-    public function getMostExpensiveItems() : array {
-        $higherPrices = array();
-        foreach ($this->items as $item){
-            $higherPrices = $item.getPrice();
-        }
-        $higherPrices.sort();
-        return array_slice($higherPrices, -5);
+        // Build purchased item
+        $purchased_item = new PurchasedItem();
+        $purchased_item->setBuyer($user);
+        $purchased_item->setPurchaseProof($proof);
+        // Rebuild item part
+        $purchased_item->setDescription($item->getDescription());
+        $purchased_item->setTitle($item->getTitle());
+        $purchased_item->setPrice($item->getPrice());
+        $purchased_item->setUrl($item->getUrl());
+
+        $this->items->add($purchased_item);
+
+        return $purchased_item;
+    }
+
+    /**
+     * Returns the 5 most expensive items
+     * 
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getMostExpensiveItems() : Collection {
+        $criteria = Criteria::create()->orderBy(['price' => Criteria::DESC]);
+
+        $sortedItems = $this->items->matching($criteria);
+
+        return $sortedItems->slice(0, 5);
     }
 
 
-    // Check the validity of the item creation parameters
+    /**
+     * Check the validity of the item creation parameters
+     * 
+     * @param string $titre
+     * @param string $description
+     * @param string $url
+     * @param float $price
+     * @return bool
+     */
     private function isValidItemParameters(string $titre, string $description, string $url, float $price) : bool {
         if (strlen($titre)>20){
             return false;
@@ -249,6 +315,84 @@ class Wishlist
         }
 
         return true;
+    }
+
+    /**
+     * Computes sum of all item price of the wishlist
+     * 
+     * @return float|int
+     */
+    public function getTotalPrice() : float {
+        $price = 0.;
+        foreach ($this->items as $item) {
+            $price += $item->getPrice();
+        }
+        return $price;
+    }
+
+    /**
+     * Adds an {@link Item} to the Wishlist
+     * 
+     * @param string $title
+     * @param string $description
+     * @param string $url
+     * @return void
+     */
+    public function addItemParams(string $title, string $description, string $url, $price) : Item {
+        if (!$this->isValidItemParameters($title, $description, $url, $price)) {
+            throw new Exception("Illegal parameters");
+        }
+
+        $item = new Item();
+
+        $item->setTitle($title);
+        $item->setDescription($description);
+        $item->setUrl($url);
+        $item->setPrice($price);
+
+        return $item;
+    }
+
+    /**
+     * Edits an {@link Item} of the Wishlist
+     * 
+     * @param \App\Entity\Item $item
+     * @param string $title
+     * @param string $description
+     * @param string $url
+     * @return void
+     */
+    public function editItemParams(Item $item, string $title, string $description, string $url, float $price) : Item {
+        if (!$this->items->contains($item)) {
+            throw new Exception("Item not in wishlist");
+        }
+
+        if (!$this->isValidItemParameters($title, $description, $url, $price)) {
+            throw new Exception("Illegal parameters");
+        }
+
+        $item->setTitle($title);
+        $item->setDescription($description);
+        $item->setUrl($url);
+        $item->setPrice($price);
+
+        return $item;
+    }
+
+    /**
+     * Removes an {@link Item} of the Wishlist
+     * 
+     * @param \App\Entity\Item $item
+     * @param string $title
+     * @param string $description
+     * @param string $url
+     * @return void
+     */
+    public function removeItemParams(Item $item) : void {
+        if (!$this->items->contains($item)) {
+            throw new Exception("Item not in wishlist");
+        }
+        $this->removeItem($item);
     }
 
 

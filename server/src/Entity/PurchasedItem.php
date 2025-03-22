@@ -6,12 +6,8 @@ use App\Repository\PurchasedItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PurchasedItemRepository::class)]
-class PurchasedItem
+class PurchasedItem extends Item
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(length: 500)]
     private ?string $congratuloryMessage = null;
