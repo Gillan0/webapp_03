@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sign up page{% endblock %}
+
+{% block style %} <link rel="stylesheet" href="{{ asset('css/form.css') }}"> {% endblock %}
+
+{% block body %}
+
+<div class="form-container">
+
+{{ form_start(form, {'attr': {'class': 'form-container'}}) }}
+    <div class="form-group">
+        {{ form_label(form.username) }}<br>
+        {{ form_widget(form.username, {'attr': {'class': 'form-control'}}) }}<br>
+        {{ form_errors(form.username) }}
+    </div>
+
+    
+    <div class="form-group">
+        {{ form_label(form.email) }}<br>
+        {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}<br>
+        {{ form_errors(form.email) }}
+    </div>
+    
+    <div class="form-group">
+        {{ form_label(form.password) }}<br>
+        {{ form_widget(form.password, {'attr': {'class': 'form-control'}}) }}<br>
+        {{ form_errors(form.password) }}
+    </div>
+    
+
+    <button class="btn btn-primary form-confirm">Register</button>
+{{ form_end(form) }}
+
+<p style="font-size:14px; color:lightgray"> Go to <a href="./login">Login Page</a> </p>
+
+<div>
+
+{% endblock %}

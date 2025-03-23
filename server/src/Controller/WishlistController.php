@@ -71,7 +71,7 @@ final class WishlistController extends AbstractController
     #[Route('/{id}', name: 'app_wishlist_delete', methods: ['POST'])]
     public function delete(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $wishlist->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($wishlist);
             $entityManager->flush();
         }
@@ -91,6 +91,22 @@ final class WishlistController extends AbstractController
         // }
 
         // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/view', name: 'app_wishlist_view', methods: ['GET'])]
+    public function view(Wishlist $wishlist, Request $request): Response
+    {
+        $sortOrder = new($request->query->get('sort', 'asc'));
+        $items = $wishlist->getItems($sortOrder);
+
+        usort($items, function ($a, $b) use ($sortOrder) {
+            return $sortOrder === 'asc' ? $a->getPrice() <=> $b->getPrice() : $b->getPrice() <=> $a->getPrice();
+        });
+
+        return $this->render('wishlist/view.html.twig', [
+            'wishlist' => $wishlist,
+            'items' => $items,
+        ]);
     }
 
 }

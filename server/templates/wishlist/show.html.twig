@@ -32,7 +32,7 @@
 
     <a href="{{ path('app_wishlist_index') }}">back to list</a>
 
-    <a href="{{ path('app_wishlist_edit', {'id': wishlist.id}) }}">edit</a>
+    <a href="{{ path('app_wishlist_edit', {'username': wishlist.author.username})}}">edit</a>
 
     {{ include('wishlist/_delete_form.html.twig') }}
 {% endblock %}

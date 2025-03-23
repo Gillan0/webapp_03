@@ -9,13 +9,20 @@
 <body>
 
     {# Bandeau contenant le logo et le titre #}
-    <div class="container">
+    <header>
         <img src="{{ asset('ressources/images/logo.png') }}" id="logo">
-        <h1>Wishlist App</h1>
-    </div>
+        <h1> {{title | default("Webapp")}} </h1>
+    </header>
 
     {# Contenu spécifique des pages #}
-    {% block body %}{% endblock %}
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+
+
+    <footer>
+        <p> Webapp Project - Group 3 </p>
+    </footer>
 
 </body>
 </html>

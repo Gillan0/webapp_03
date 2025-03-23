@@ -1,0 +1,18 @@
+<h1>Wishlist of {{ wishlist.name }}</h1>
+
+<a href="{{ path('app_wishlist_view', {'id': wishlist.id, 'sort': 'asc'}) }}">Sort : ascending</a>
+<a href="{{ path('app_wishlist_view', {'id': wishlist.id, 'sort': 'desc'}) }}">Sort : descending</a>
+
+
+<ul>
+    {% for item in items %}
+        <li>
+            {{ item.name }} - {{ item.price }} €
+            {% if item.purchased %}
+                (Purchased by {{ item.purchasedBy }} : "{{ item.message }}")
+            {% else %}
+                <a href="{{ path('app_item_purchase', {'id': item.id}) }}">Purchase</a>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
