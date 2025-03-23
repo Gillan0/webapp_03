@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Wishlist;
 use App\Repository\UserRepository;
+use App\Repository\WishlistRepository;
 use App\Repository\WebsiteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -51,7 +53,7 @@ final class Case1Controller extends AbstractController
             return $this->redirectToRoute('app_list_wishlists', ['username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('user/sign_up.html.twig', [
+        return $this->render('case1/sign_up.html.twig', [
             'title' => 'Sign Up Page',
             'form' => $form,
         ]);
@@ -68,6 +70,8 @@ final class Case1Controller extends AbstractController
 
         $form->handleRequest($request);
 
+        $errorMessage = null;
+
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
             $username = trim(htmlspecialchars($formData->getUsername()));
@@ -81,12 +85,16 @@ final class Case1Controller extends AbstractController
             if ($user!=NULL){
                 return $this->redirectToRoute('app_list_wishlists', ["username" => $user->getUsername()], Response::HTTP_SEE_OTHER);
             }
+
+            else {
+                $errorMessage = "You are not registered."; #¨Pour retirer le gros message d'erreur 
+            }
         }
-        $e = new Exception("You are not registered.");
-        return $this->render('user/login.html.twig', [
+
+        return $this->render('case1/login.html.twig', [
             'title' => 'Login Page',
             'form' => $form,
-            'erreur' => $e,
+            'erreur' => $errorMessage,
         ]);
     }
 
@@ -102,7 +110,9 @@ final class Case1Controller extends AbstractController
             $authors = $wishlist->getAuthor();
         }
 
-        return $this->render('wishlist/list_wishlists.html.twig', [
+
+        return $this->render('case1/list_wishlists.html.twig', [
+            'title' => 'MyWishlists Page',
             'user'=>$user,
             'wishlists' => $wishlists,
             'invitedWishlists' => $invitedWishlists,
@@ -137,5 +147,100 @@ final class Case1Controller extends AbstractController
 
         return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
     }    
+
+
+
+    #[Route('/{username}/wishlist/add', name: 'app_user_wishlist_add', methods: ['GET','POST'])]
+    public function add(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    {
+        // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
+        //     $entityManager->remove($wishlist);
+        //     $entityManager->flush();
+        // }
+
+        // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{username}/{wishlistId}/shared', name: 'app_wishlist_shared', methods: ['GET','POST'])]
+    public function share(Request $request, string $username, string $wishlistId, UserRepository $userRepository, WishlistRepository $wishlistRepository, EntityManagerInterface $entityManager): Response
+    {
+
+        $user = $userRepository->findOneBy(['username' => $username]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlistId]);
+
+        if ($this->isCsrfTokenValid('share'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            
+            $sharingUrl = $wishlist->getSharingUrl();
+            return $this->render('case1/list_wishlists.html.twig', [
+                'title' => 'MyWishlists Page',
+                'user' => $user,
+                'wishlists' => $user->getWishlists(),
+                'invitedWishlists' => $user->getInvitedWishlists(),
+                'authors' => $wishlist->getAuthor(),
+                'sharingUrl' => $sharingUrl,
+            ]);
+        }
+        
+        
+        return $this->render('case1/list_wishlists.html.twig', [
+            'title' => 'MyWishlists Page',
+            'user' => $user,
+            'wishlists' => $user->getWishlists(),
+            'invitedWishlists' => $user->getInvitedWishlists(),
+            'authors' => $wishlist->getAuthor(),
+            'erreur' => "Invalid CSRF token.",
+        ]);
+        
+    }
+
+
+    #[Route('/{username}/{wishlistId}/displayed', name: 'app_wishlist_displayed', methods: ['GET','POST'])]
+    public function display(Request $request, string $username, string $wishlistId, UserRepository $userRepository, WishlistRepository $wishlistRepository, EntityManagerInterface $entityManager): Response
+    {
+        
+        $user = $userRepository->findOneBy(['username' => $username]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlistId]);
+
+        if ($this->isCsrfTokenValid('display'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            
+            $displayUrl = $wishlist->getDisplayUrl();
+            return $this->render('case1/list_wishlists.html.twig', [
+                'title' => 'MyWishlists Page',
+                'user' => $user,
+                'wishlists' => $user->getWishlists(),
+                'invitedWishlists' => $user->getInvitedWishlists(),
+                'authors' => $wishlist->getAuthor(),
+                'displayUrl' => $displayUrl,
+            ]);
+        }
+
+        return $this->render('case1/list_wishlists.html.twig', [
+            'title' => 'MyWishlists Page',
+            'user' => $user,
+            'wishlists' => $user->getWishlists(),
+            'invitedWishlists' => $user->getInvitedWishlists(),
+            'authors' => $wishlist->getAuthor(),
+            'erreur' => "Invalid CSRF token.",
+        ]);
+    }
+
+
+    #[Route('/{username}/myWishlists/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]  #A MODIF
+    public function edit(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(WishlistType::class, $wishlist);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('wishlist/edit.html.twig', [
+            'wishlist' => $wishlist,
+            'form' => $form,
+        ]);
+    }
 
 }

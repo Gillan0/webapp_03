@@ -83,163 +83,163 @@ final class UserController extends AbstractController
 
     ############### Controllers ajoutés ########################
 
-    use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+    // use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-    #[Route('/login', name: 'app_user_login', methods: ['GET', 'POST'])]
-    public function login(UserRepository $userRepository, Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
-    {   
-        $user = new User();
-        $form = $this->createFormBuilder($user)
-            ->add('email')
-            ->add('password')
-            ->getForm();
+    // #[Route('/login', name: 'app_user_login', methods: ['GET', 'POST'])]
+    // public function login(UserRepository $userRepository, Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
+    // {   
+    //     $user = new User();
+    //     $form = $this->createFormBuilder($user)
+    //         ->add('email')
+    //         ->add('password')
+    //         ->getForm();
     
-        $form->handleRequest($request);
+    //     $form->handleRequest($request);
     
-        // Initialisation de la variable d'erreur
-        $errorMessage = null;
-    
-
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $data = $form->getData();
-            $user = $userRepository->findUserByEmail($data->getEmail());
-    
-            // Si l'utilisateur existe dans la base de données
-            if ($user !== null) {
-
-                if ($passwordEncoder->isPasswordValid($user, $data->getPassword())) {
-
-                    return $this->redirectToRoute('app_list_wishlists', [
-                        'id' => $user->getId(),
-                        'username' => $user->getUsername(),
-                    ], Response::HTTP_SEE_OTHER);
-                } else {
-
-                    $errorMessage = "Invalid password!";
-                }
-            } else {
-
-                $errorMessage = "You are not registered!";
-            }
-        }
-    
-        return $this->render('user/login.html.twig', [
-            'form' => $form,
-            'erreur' => $errorMessage,  // Passe l'erreur uniquement si elle existe
-        ]);
-    }
+    //     // Initialisation de la variable d'erreur
+    //     $errorMessage = null;
     
 
-    #[Route('/signUp', name: 'app_user_sign_up', methods: ['GET','POST'])]
-    public function signUp(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $user = new User(); 
+    //     if ($form->isSubmitted() && $form->isValid()) {
 
-        $form = $this->createFormBuilder()
-        ->add('username', TextType::class, [
-            'label' => 'Username',
-        ])
-        ->add('password', PasswordType::class, [
-            'label' => 'Password',
-        ])
-        ->add('email', SubmitType::class, [
-            'label' => 'Email',
-        ])
-        ->add('sign Up', SubmitType::class, [
-            'label' => 'Create User',
-        ])
-        ->getForm(); 
+    //         $data = $form->getData();
+    //         $user = $userRepository->findUserByEmail($data->getEmail());
+    
+    //         // Si l'utilisateur existe dans la base de données
+    //         if ($user !== null) {
 
-        $form->handleRequest($request);
+    //             if ($passwordEncoder->isPasswordValid($user, $data->getPassword())) {
+
+    //                 return $this->redirectToRoute('app_list_wishlists', [
+    //                     'id' => $user->getId(),
+    //                     'username' => $user->getUsername(),
+    //                 ], Response::HTTP_SEE_OTHER);
+    //             } else {
+
+    //                 $errorMessage = "Invalid password!";
+    //             }
+    //         } else {
+
+    //             $errorMessage = "You are not registered!";
+    //         }
+    //     }
+    
+    //     return $this->render('user/login.html.twig', [
+    //         'form' => $form,
+    //         'erreur' => $errorMessage,  // Passe l'erreur uniquement si elle existe
+    //     ]);
+    // }
+    
+
+    // #[Route('/signUp', name: 'app_user_sign_up', methods: ['GET','POST'])]
+    // public function signUp(Request $request, EntityManagerInterface $entityManager): Response
+    // {
+    //     $user = new User(); 
+
+    //     $form = $this->createFormBuilder()
+    //     ->add('username', TextType::class, [
+    //         'label' => 'Username',
+    //     ])
+    //     ->add('password', PasswordType::class, [
+    //         'label' => 'Password',
+    //     ])
+    //     ->add('email', SubmitType::class, [
+    //         'label' => 'Email',
+    //     ])
+    //     ->add('sign Up', SubmitType::class, [
+    //         'label' => 'Create User',
+    //     ])
+    //     ->getForm(); 
+
+    //     $form->handleRequest($request);
 
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $user -> setUsername($data->getSurname());
-            $user -> setPassword($data->getPassword());
-            $user -> setEmail($data->getEmail());
-            $entityManager->persist($user);
-            $entityManager->flush();
+    //     if ($form->isSubmitted() && $form->isValid()) {
+    //         $data = $form->getData();
+    //         $user -> setUsername($data->getSurname());
+    //         $user -> setPassword($data->getPassword());
+    //         $user -> setEmail($data->getEmail());
+    //         $entityManager->persist($user);
+    //         $entityManager->flush();
 
-            return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
-        }
+    //         return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
+    //     }
 
-        return $this->render('user/login.html.twig', [
-            'form' => $form,
-        ]);
-    }
+    //     return $this->render('user/login.html.twig', [
+    //         'form' => $form,
+    //     ]);
+    // }
 
 
-    #[Route('/{id}/myWishlists', name: 'app_list_wishlists', methods: ['GET','POST'])]
-    public function list_wishlists(UserRepository $userRepository, User $user): Response
-    {      
-        $wishlists = $user->getWishlists(); 
-        $invitedWishlists = $user->getInvitedWishlists(); 
-        $authors = array();
-        foreach ($wishlists as $wishlist){
-            $authors = $wishlist->getAuthor();
-        }
+    // #[Route('/{id}/myWishlists', name: 'app_list_wishlists', methods: ['GET','POST'])]
+    // public function list_wishlists(UserRepository $userRepository, User $user): Response
+    // {      
+    //     $wishlists = $user->getWishlists(); 
+    //     $invitedWishlists = $user->getInvitedWishlists(); 
+    //     $authors = array();
+    //     foreach ($wishlists as $wishlist){
+    //         $authors = $wishlist->getAuthor();
+    //     }
 
-        return $this->render('wishlist/list_wishlists.html.twig', [
-            'user'=>$user,
-            'wishlists' => $wishlists,
-            'invitedWishlists' => $invitedWishlists,
-            'authors' => $authors,
-        ]);
+    //     return $this->render('wishlist/list_wishlists.html.twig', [
+    //         'user'=>$user,
+    //         'wishlists' => $wishlists,
+    //         'invitedWishlists' => $invitedWishlists,
+    //         'authors' => $authors,
+    //     ]);
 
-    }
+    // }
 
-    #[Route('/{username}/myWishlists/invitationAccepted', name: 'app_user_wishlist_accepted', methods: ['GET', 'POST'])]
-    public function accept(Request $request, User $user, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('accept'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            $wishlist = $request->request->get('invitedWishlist');
-            $user->addWishlist($wishlist); 
-            $entityManager->flush();
-            $entityManager->refresh($user);
-        }
+    // #[Route('/{username}/myWishlists/invitationAccepted', name: 'app_user_wishlist_accepted', methods: ['GET', 'POST'])]
+    // public function accept(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    // {
+    //     if ($this->isCsrfTokenValid('accept'.$user->getId(), $request->getPayload()->getString('_token'))) {
+    //         $wishlist = $request->request->get('invitedWishlist');
+    //         $user->addWishlist($wishlist); 
+    //         $entityManager->flush();
+    //         $entityManager->refresh($user);
+    //     }
 
-        return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
-    }
+    //     return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
+    // }
 
-    #[Route('/{username}/myWishlists/invitationRefused', name: 'app_user_wishlist_refused', methods: ['GET', 'POST'])]
-    public function refuse(Request $request, User $user, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            $wishlist = $request->request->get('invitedWishlist');
-            $user->removeInvitedWishlist($wishlist);
-            $entityManager->flush();
-            $entityManager->refresh($user);
-        }
+    // #[Route('/{username}/myWishlists/invitationRefused', name: 'app_user_wishlist_refused', methods: ['GET', 'POST'])]
+    // public function refuse(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    // {
+    //     if ($this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
+    //         $wishlist = $request->request->get('invitedWishlist');
+    //         $user->removeInvitedWishlist($wishlist);
+    //         $entityManager->flush();
+    //         $entityManager->refresh($user);
+    //     }
 
-        return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
-    }
+    //     return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
+    // }
 
     
 
 
-    #[Route('/{id}/wishlist/add', name: 'app_user_wishlist_add', methods: ['GET','POST'])]
-    public function add(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
-    {
-        // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
-        //     $entityManager->remove($wishlist);
-        //     $entityManager->flush();
-        // }
+    // #[Route('/{id}/wishlist/add', name: 'app_user_wishlist_add', methods: ['GET','POST'])]
+    // public function add(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
+    // {
+    //     // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
+    //     //     $entityManager->remove($wishlist);
+    //     //     $entityManager->flush();
+    //     // }
 
-        // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
-    }
+    //     // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+    // }
 
-    #[Route('/{id}/wishlist/shared', name: 'app_wishlist_shared', methods: ['GET','POST'])]
-    public function share(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
-    {
-        // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
-        //     $entityManager->remove($wishlist);
-        //     $entityManager->flush();
-        // }
+    // #[Route('/{id}/wishlist/shared', name: 'app_wishlist_shared', methods: ['GET','POST'])]
+    // public function share(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
+    // {
+    //     // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
+    //     //     $entityManager->remove($wishlist);
+    //     //     $entityManager->flush();
+    //     // }
 
-        // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
-    }
+    //     // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+    // }
 
 
 

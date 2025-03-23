@@ -50,23 +50,23 @@ final class WishlistController extends AbstractController
         ]);
     }
 
-    #[Route('/{username}/myWishlists/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(WishlistType::class, $wishlist);
-        $form->handleRequest($request);
+    // #[Route('/{username}/myWishlists/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]
+    // public function edit(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
+    // {
+    //     $form = $this->createForm(WishlistType::class, $wishlist);
+    //     $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+    //     if ($form->isSubmitted() && $form->isValid()) {
+    //         $entityManager->flush();
 
-            return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
-        }
+    //         return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+    //     }
 
-        return $this->render('wishlist/edit.html.twig', [
-            'wishlist' => $wishlist,
-            'form' => $form,
-        ]);
-    }
+    //     return $this->render('wishlist/edit.html.twig', [
+    //         'wishlist' => $wishlist,
+    //         'form' => $form,
+    //     ]);
+    // }
 
     #[Route('/{id}', name: 'app_wishlist_delete', methods: ['POST'])]
     public function delete(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
@@ -82,32 +82,32 @@ final class WishlistController extends AbstractController
 
     ############### Controllers ajoutés ########################
 
-    #[Route('/{id}', name: 'app_wishlist_shared', methods: ['GET','POST'])]
-    public function add(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
-    {
-        // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
-        //     $entityManager->remove($wishlist);
-        //     $entityManager->flush();
-        // }
+//     #[Route('/{id}', name: 'app_wishlist_shared', methods: ['GET','POST'])]
+//     public function add(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
+//     {
+//         // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
+//         //     $entityManager->remove($wishlist);
+//         //     $entityManager->flush();
+//         // }
 
-        // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
-    }
+//         // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+//     }
 
-    #[Route('/{id}/view', name: 'app_wishlist_view', methods: ['GET'])]
-    public function view(Wishlist $wishlist, Request $request): Response
-    {
-        $sortOrder = new($request->query->get('sort', 'asc'));
-        $items = $wishlist->getItems($sortOrder);
+//     #[Route('/{id}/view', name: 'app_wishlist_view', methods: ['GET'])]
+//     public function view(Wishlist $wishlist, Request $request): Response
+//     {
+//         $sortOrder = new($request->query->get('sort', 'asc'));
+//         $items = $wishlist->getItems($sortOrder);
 
-        usort($items, function ($a, $b) use ($sortOrder) {
-            return $sortOrder === 'asc' ? $a->getPrice() <=> $b->getPrice() : $b->getPrice() <=> $a->getPrice();
-        });
+//         usort($items, function ($a, $b) use ($sortOrder) {
+//             return $sortOrder === 'asc' ? $a->getPrice() <=> $b->getPrice() : $b->getPrice() <=> $a->getPrice();
+//         });
 
-        return $this->render('wishlist/view.html.twig', [
-            'wishlist' => $wishlist,
-            'items' => $items,
-        ]);
-    }
+//         return $this->render('wishlist/view.html.twig', [
+//             'wishlist' => $wishlist,
+//             'items' => $items,
+//         ]);
+//     }
 
 }
 

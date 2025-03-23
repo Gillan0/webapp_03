@@ -27,8 +27,14 @@
     background-color: #0056b3;  /* Couleur au survol */
 }
 
+#header-bandeau .btn-primary {
+    background-color: #0056b3;  /* Bouton secondaire */
+    width : 100px;
+}
+
 #header-bandeau .btn-secondary {
     background-color: #6c757d;  /* Bouton secondaire */
+    width : 100px;
 }
 
 #header-bandeau .btn-secondary:hover {

@@ -43,16 +43,22 @@
                     <td>{{wishlist.name}}</td>
                     <td>{{authors.username}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
                     <td>
-                        <form method="post" action="{{ path('app_wishlist_edit', {'id': user.id}) }}">
+                        <form method="post" action="{{ path('app_wishlist_edit', {'id': user.id, 'wishlistId' : wishlist.id, 'username' : user.username}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('share' ~ user.id) }}">
                             <button class="btn"><img src="{{ asset('ressources/images/edit.png') }}" id="edit" width ="10px" height ="10px"></button> {# TODO#}
                         </form>
                     </td>
                     <td>{{ include('wishlist/_delete_form.html.twig') }}</td> {# TODO: a revoir au niveau de l'interface#}
                     <td>
-                        <form method="post" action="{{ path('app_wishlist_shared', {'id': user.id}) }}">
+                        <form method="post" action="{{ path('app_wishlist_shared', {'username': user.username, 'wishlistId' : wishlist.id}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('share' ~ user.id) }}">
-                            <button class="btn"><img src="{{ asset('ressources/images/share.png') }}" id="share"></button> {# TODO#}
+                            <button class="btn"><img src="{{ asset('ressources/images/share.png') }}" id="share"></button> 
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" action="{{ path('app_wishlist_displayed', {'username': user.username, 'wishlistId' : wishlist.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('display' ~ user.id) }}">
+                            <button class="btn"><img src="{{ asset('ressources/images/display.png') }}" id="display"></button> 
                         </form>
                     </td>
                 </tr>
@@ -61,10 +67,43 @@
     </div>
 
     <div>
-        <form method="post" action= "{{ path('app_user_wishlist_add', {'id': user.id}) }}">
+        <form method="post" action= "{{ path('app_user_wishlist_add', {'id': user.id, 'username': user.username}) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('add' ~ user.id) }}">
             <button><img src="{{ asset('ressources/images/add.png') }}" id="add" width ="10" height ="10px"> Add a Wishlist</button>
         </form>
     </div>
 </div>
+
+{% if erreur is defined %}
+<div>
+    {{ erreur }}
+</div>
+{% endif %}
+
+<!-- Affichage conditionnel du champ de partage -->
+{% if sharingUrl is defined%}
+    <div class="share-container">
+        <label for="share-link">Share this link:</label>
+        <input type="text" id="share-link" value="{{sharingUrl }}" readonly>
+        <button onclick="copyToClipboard()">Copy</button>
+    </div>
+{% endif %}
+
+{% if displayUrl is defined%}
+    <div class="share-container">
+        <label for="display-link">Display this link:</label>
+        <input type="text" id="display-link" value="{{ displayUrl }}" readonly>
+        <button onclick="copyToClipboard()">Copy</button>
+    </div>
+{% endif %}
+</div>
+
+<script>
+function copyToClipboard() {
+    var copyText = document.getElementById("share-link");
+    copyText.select();
+    document.execCommand("copy");
+    alert("Copied: " + copyText.value);
+}
+</script>
 {%endblock%}
