@@ -184,8 +184,9 @@ class Website implements Login, AdminUserManagement, AdminDashboard
     public function createUser(string $username,
                                 string $password,
                                 string $email): User  {
-        if (!$this->isValidCredentials($username, $password, $email)) {
-            throw new Exception("Invalid account parameters");
+        $errorMessage = $this->isValidCredentials($username, $password, $email); 
+        if (isset($errorMessage)) {
+            throw new Exception($errorMessage);
         }
 
         // Check is username if not already used
@@ -252,22 +253,31 @@ class Website implements Login, AdminUserManagement, AdminDashboard
      */
     public function isValidCredentials(string $username,
                                         string $password,
-                                        string $email) : bool {
-        if (strlen($username) >20) {
-            return false;
+                                        string $email) : ?string {
+        if (strlen( $username) <= 0) {
+            return "Username too short";
+        }
+        if (strlen( $username) >20) {
+            return "No username";
+        }
+        if (strlen( $password) <= 0) {
+            return "No password";
         }
         if (strlen($password) >20) {
-            return false;
+            return "Password too long";
+        }
+        if (strlen( $email) <= 0) {
+            return "Username too short";
         }
         if (strlen($email) >50) {
-            return false;
+            return "Email too long";
         }
         // Is an email address
         if (!preg_match("/^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/ ", $email)) {
-            return false;
+            return "Not an email address";
 
         }
-        return true;                                   
+        return null;                                   
     }
 
     /**

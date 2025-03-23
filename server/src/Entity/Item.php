@@ -40,7 +40,7 @@ class Item
 
     #[ORM\ManyToOne(inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false)]
-    protected ?Wishlist $wishlish = null;
+    protected ?Wishlist $wishlist = null;
 
     public function getId(): ?int
     {
@@ -110,12 +110,12 @@ class Item
 
     public function getWishlist(): ?Wishlist
     {
-        return $this->wishlish;
+        return $this->wishlist;
     }
 
     public function setWishlist(?Wishlist $newWishlist): static
     {
-        $this->wishlish = $newWishlist;
+        $this->wishlist = $newWishlist;
 
         return $this;
     }

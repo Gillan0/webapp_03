@@ -32,6 +32,7 @@ final class Case1Controller extends AbstractController
         ->getForm();
         $form->handleRequest($request);
 
+        $errorMessage = null;
 
         if ($form->isSubmitted() && $form->isValid()) {
 
@@ -43,19 +44,24 @@ final class Case1Controller extends AbstractController
 
             $website = $websiteRepository->findOneBy(['id' => 1]);  
 
-            $user = $website->createUser($username, $password, $email);
+            try {
+                $user = $website->createUser($username, $password, $email);
 
-            $entityManager->persist($website);
-            $entityManager->persist($user);
+                $entityManager->persist($website);
+                $entityManager->persist($user);
 
-            $entityManager->flush();
+                $entityManager->flush();
 
-            return $this->redirectToRoute('app_list_wishlists', ['username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_list_wishlists', ['username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
+            } catch (Exception $e) {
+                $errorMessage = $e->getMessage();
+            }
         }
 
         return $this->render('case1/sign_up.html.twig', [
             'title' => 'Sign Up Page',
             'form' => $form,
+            'erreur' => $errorMessage,
         ]);
     }
 
@@ -80,21 +86,18 @@ final class Case1Controller extends AbstractController
 
             $website = $websiteRepository->findOneBy(['id' => 1]);  
 
-            $user = $website->login($username, $password);
-            
-            if ($user!=NULL){
+            try {
+                $user = $website->login($username, $password);
                 return $this->redirectToRoute('app_list_wishlists', ["username" => $user->getUsername()], Response::HTTP_SEE_OTHER);
-            }
-
-            else {
-                $errorMessage = "You are not registered."; #¨Pour retirer le gros message d'erreur 
-            }
+            } catch (Exception $e) {
+                $errorMessage = $e->getMessage(); 
+            }    
         }
 
         return $this->render('case1/login.html.twig', [
             'title' => 'Login Page',
             'form' => $form,
-            'erreur' => $errorMessage,
+            'error' => $errorMessage,
         ]);
     }
 
@@ -105,60 +108,111 @@ final class Case1Controller extends AbstractController
         $user = $userRepository->findOneBy(['username' => $username]);
         $wishlists = $user->getWishlists(); 
         $invitedWishlists = $user->getInvitedWishlists(); 
-        $authors = array();
-        foreach ($wishlists as $wishlist){
-            $authors = $wishlist->getAuthor();
-        }
-
 
         return $this->render('case1/list_wishlists.html.twig', [
-            'title' => 'MyWishlists Page',
+            'title' => 'My Wishlists',
             'user'=>$user,
             'wishlists' => $wishlists,
-            'invitedWishlists' => $invitedWishlists,
-            'authors' => $authors,
+            'invitedWishlists' => $invitedWishlists
         ]);
 
     }
 
-    
-    #[Route('/{username}/myWishlists/invitationAccepted', name: 'app_user_wishlist_accepted', methods: ['GET', 'POST'])]
-    public function accept(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{username}/{wishlist_id}', name: 'app_user_delete_wishlist', methods: ['POST'])]
+    public function delete(Request $request,
+                            string $username, 
+                            string $wishlist_id, 
+                            UserRepository $userRepository, 
+                            WishlistRepository $wishlistRepository,
+                            EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('accept'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            $wishlist = $request->request->get('invitedWishlist');
-            $user->acceptInvitation($wishlist);
-            $entityManager->flush();
-            $entityManager->refresh($user);
+        $user = $userRepository->findOneBy(['username' => $username]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+
+        if (!$this->isCsrfTokenValid('delete' . $wishlist->getId(), $request->getPayload()->getString('_token'))) {            
+            return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
+        try {
+            $user->deleteWishlist($wishlist);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_list_wishlists', 
+                                            ['username' => $username],
+                                             Response::HTTP_SEE_OTHER);
+
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_list_wishlists', 
+                                            ['username' => $username],
+                                             Response::HTTP_SEE_OTHER);
+        }
     }
 
-    #[Route('/{username}/myWishlists/invitationRefused', name: 'app_user_wishlist_refused', methods: ['GET', 'POST'])]
-    public function refuse(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    
+    #[Route('/{username}/myWishlists/invitationAccepted/{wishlist_id}', name: 'app_user_wishlist_accepted', methods: ['GET', 'POST'])]
+    public function accept(Request $request, 
+                            string $username, 
+                            string $wishlist_id, 
+                            UserRepository $userRepository, 
+                            WishlistRepository $wishlistRepository,
+                            EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            $wishlist = $request->request->get('invitedWishlist');
-            $user->refuseInvitation($wishlist);
-            $entityManager->flush();
-            $entityManager->refresh($user);
+        $user = $userRepository->findOneBy(['username' => $username]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+
+        if (!$this->isCsrfTokenValid('accept'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
-    }    
+        try {
+            $user->acceptInvitation($wishlist);
+            $entityManager->flush();
+        } catch (Exception $e) {}
+        
+        return $this->redirectToRoute('app_list_wishlists', 
+                                        ['username' => $username],
+                                        Response::HTTP_SEE_OTHER);
+
+    }
+
+    #[Route('/{username}/myWishlists/invitationRefused/{wishlist_id}', name: 'app_user_wishlist_refused', methods: ['GET', 'POST'])]
+    public function refuse(Request $request, 
+                            string $username, 
+                            string $wishlist_id, 
+                            UserRepository $userRepository, 
+                            WishlistRepository $wishlistRepository,
+                            EntityManagerInterface $entityManager): Response
+    {
+        $user = $userRepository->findOneBy(['username' => $username]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+
+        if (!$this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
+        }
+
+        try {
+            $user->refuseInvitation($wishlist);
+            $entityManager->flush();
+        } catch (Exception $e) {}
+        
+        return $this->redirectToRoute('app_list_wishlists', 
+                                        ['username' => $username],
+                                        Response::HTTP_SEE_OTHER);
+
+    }   
 
 
 
     #[Route('/{username}/wishlist/add', name: 'app_user_wishlist_add', methods: ['GET','POST'])]
     public function add(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        // if ($this->isCsrfTokenValid('add'.$wishlist->getId(), $request->getPayload()->getString('_token'))) {
-        //     $entityManager->remove($wishlist);
-        //     $entityManager->flush();
-        // }
+        
+        if ($this->isCsrfTokenValid('add'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($user);
+            $entityManager->flush();
+        }
 
-        // return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{username}/{wishlistId}/shared', name: 'app_wishlist_shared', methods: ['GET','POST'])]
@@ -192,6 +246,8 @@ final class Case1Controller extends AbstractController
         ]);
         
     }
+
+    
 
 
     #[Route('/{username}/{wishlistId}/displayed', name: 'app_wishlist_displayed', methods: ['GET','POST'])]

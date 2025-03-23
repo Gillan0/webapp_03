@@ -41,7 +41,7 @@ INSERT INTO `wishlist` (`id`, `author_id`, `deadline`, `name`, `sharing_url`, `d
 -- Déchargement des données de la table `item`
 --
 
-INSERT INTO `item` (`id`, `wishlish_id`, `title`, `description`, `price`, `url`, `dtype`) VALUES
+INSERT INTO `item` (`id`, `wishlist_id`, `title`, `description`, `price`, `url`, `dtype`) VALUES
 (1, 1, 'Imprimante 3d', 'Imprime en 3d', 239, 'https://www.bol.com/be/fr/p/printer-3dandprint-3d-x1-3dandprint-de-construction-technologie-d-impression-fdm-pla/9200000130935184/?bltgh=gd2euj872Zm5Zd0clJNN-w.4_27.28.ProductTitle', 'item'),
 (2, 1, 'Bois', 'Planche sapin petits noeuds, Ep.25 x l.195 mm mm, 2.5 m', 13.9, 'https://www.leroymerlin.fr/produits/planche-sapin-petits-noeuds-ep-25-x-l-195-mm-mm-2-5-m-79322852.html', 'item'),
 (3, 2, 'Alcool', 'LE PHILTRE Organic Vodka\r\n', 49, 'https://www.whisky.fr/le-philtre-organic-vodka.html', 'item'),

@@ -42,6 +42,7 @@ class User implements WishlistManagement
     private ?bool $isLocked = null;
 
 
+
     /**
      * @var Collection<int, Wishlist>
      */
@@ -308,12 +309,12 @@ class User implements WishlistManagement
      */
     public function deleteWishlist(Wishlist $wishlist) : void {
 
-        if ($wishlist->getAuthor()->equals($this)) {
+        if (!$wishlist->getAuthor()->equals($this)) {
             throw new Exception("Only wishlist author can delete it");
         }
+        $wishlist->setAuthor(null);
 
         $this->wishlists->removeElement($wishlist);
-
     }
 
     /**
@@ -329,8 +330,17 @@ class User implements WishlistManagement
         if (!$wishlist->getAuthor()->equals($this)) {
             throw new Exception("Only author can invite other users");
         }
-        
+
         $user = $this->website->findUserByUsername($username);
+
+        if (!$wishlist->getContributors()->contains($user)) {
+            throw new Exception("User already contributes");
+        }
+
+        if (!$wishlist->getInvitedUser()->contains($user)) {
+            throw new Exception("User already invited");
+        }
+        
         $user->addInvitedWishlist($wishlist);
         $wishlist->addInvitedUser($user);
 

@@ -4,7 +4,10 @@
     <title>{% block title %}Wishlist App{% endblock %}</title>
 
     {# Lien vers le fichier CSS #}
+    <link rel="icon" href="{{ asset('ressources/images/logo.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('css/default.css') }}?v={{ random() }}">
+    {% block style %}
+    {% endblock %}
 </head>
 <body>
 

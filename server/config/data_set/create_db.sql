@@ -39,7 +39,7 @@ CREATE TABLE `admin` (
 
 CREATE TABLE `item` (
   `id` int NOT NULL,
-  `wishlish_id` int NOT NULL,
+  `wishlist_id` int NOT NULL,
   `title` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
   `price` double NOT NULL,
@@ -156,7 +156,7 @@ ALTER TABLE `admin`
 --
 ALTER TABLE `item`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `IDX_1F1B251EE141BCEA` (`wishlish_id`);
+  ADD KEY `IDX_1F1B251EE141BCEA` (`wishlist_id`);
 
 --
 -- Index pour la table `messenger_messages`
@@ -258,7 +258,7 @@ ALTER TABLE `admin`
 -- Contraintes pour la table `item`
 --
 ALTER TABLE `item`
-  ADD CONSTRAINT `FK_1F1B251EE141BCEA` FOREIGN KEY (`wishlish_id`) REFERENCES `wishlist` (`id`);
+  ADD CONSTRAINT `FK_1F1B251EE141BCEA` FOREIGN KEY (`wishlist_id`) REFERENCES `wishlist` (`id`);
 
 -- (Other constraints follow...)
 

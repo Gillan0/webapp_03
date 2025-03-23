@@ -41,11 +41,11 @@ interface Login
      * @param string $username
      * @param string $password
      * @param string $email
-     * @return bool if parameters are valid 
+     * @return string error message, if correct returns empty character list
      */
     public function isValidCredentials(string $username,
                                         string $password,
-                                        string $email) : bool;
+                                        string $email) : ?string;
 
 }
 

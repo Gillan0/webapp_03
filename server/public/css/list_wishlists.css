@@ -3,7 +3,6 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f5f5f5;
     margin: 0;
-    padding: 20px;
 }
 
 /* Style des blocs principaux */
@@ -17,15 +16,15 @@ body {
 }
 
 .bloc1 {
-    border-color: #28a745; /* Vert pour différencier */
+    border-color: #00B8DE; /* Bleu IMT */
 }
 
 .bloc2 {
-    border-color: #dc3545; /* Rouge pour différencier */
+    border-color: #00B8DE; /* Blue IMT */
 }
 
 /* Titres des blocs */
-.bloc1 > div:first-child, .bloc2 > div:first-child {
+.bloc1 > h3, .bloc2 > h3 {
     font-size: 20px;
     font-weight: bold;
     color: white;
@@ -36,12 +35,13 @@ body {
     margin-bottom: 15px;
 }
 
-.bloc1 > div:first-child {
-    background-color: #28a745; /* Vert */
+
+.bloc1 > h3 {
+    background-color: #00B8DE; /* Bleu IMT */
 }
 
-.bloc2 > div:first-child {
-    background-color: #dc3545; /* Rouge */
+.bloc2 > h3 {
+    background-color: #00B8DE; /* Bleu IMT */
 }
 
 /* Style des tableaux */
