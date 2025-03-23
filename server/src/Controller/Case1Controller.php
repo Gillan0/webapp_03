@@ -55,6 +55,9 @@ final class Case1Controller extends AbstractController
 
                 $entityManager->flush();
 
+                $session = $request->getSession();
+                $session->set('user', $user);
+
                 return $this->redirectToRoute('app_list_wishlists', ['username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
             } catch (Exception $e) {
                 $errorMessage = $e->getMessage();
@@ -91,6 +94,10 @@ final class Case1Controller extends AbstractController
 
             try {
                 $user = $website->login($username, $password);
+
+                $session = $request->getSession();
+                $session->set('user', $user);
+
                 return $this->redirectToRoute('app_list_wishlists', ["username" => $user->getUsername()], Response::HTTP_SEE_OTHER);
             } catch (Exception $e) {
                 $errorMessage = $e->getMessage(); 
@@ -104,11 +111,31 @@ final class Case1Controller extends AbstractController
         ]);
     }
 
+    public function handleSession(Request $request, string $username, UserRepository $userRepository,) {
+        $user = $request->getSession()->get('user');
+        $expectedUser = $userRepository->findOneBy(['username' => $username]);
+
+        // Incorrect session
+        if (!$user->equals($expectedUser)) {
+            throw new Exception("Session doesn't match expected user");
+        }
+        
+        // Update session with latest user object
+        $user = $expectedUser;
+        $request->getSession()->set('user', $user);
+
+        return $user;
+    }
 
     #[Route('/{username}/myWishlists', name: 'app_list_wishlists', methods: ['GET','POST'])]
-    public function show_list_wishlists(string $username, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    public function show_list_wishlists(Request $request,string $username, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {      
-        $user = $userRepository->findOneBy(['username' => $username]);
+        try {
+            $user = $this->handleSession($request, $username,  $userRepository);
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
+        }
+
         $wishlists = $user->getWishlists(); 
         $invitedWishlists = $user->getInvitedWishlists(); 
 
@@ -129,7 +156,11 @@ final class Case1Controller extends AbstractController
                             WishlistRepository $wishlistRepository,
                             EntityManagerInterface $entityManager): Response
     {
-        $user = $userRepository->findOneBy(['username' => $username]);
+        try {
+            $user = $this->handleSession($request, $username,  $userRepository);
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
+        }
         $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
 
         if (!$this->isCsrfTokenValid('delete' . $wishlist->getId(), $request->getPayload()->getString('_token'))) {            
@@ -160,7 +191,12 @@ final class Case1Controller extends AbstractController
                             WishlistRepository $wishlistRepository,
                             EntityManagerInterface $entityManager): Response
     {
-        $user = $userRepository->findOneBy(['username' => $username]);
+        try {
+            $user = $this->handleSession($request, $username,  $userRepository);
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
+        }        
+        
         $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
 
         if (!$this->isCsrfTokenValid('accept'.$user->getId(), $request->getPayload()->getString('_token'))) {
@@ -186,7 +222,12 @@ final class Case1Controller extends AbstractController
                             WishlistRepository $wishlistRepository,
                             EntityManagerInterface $entityManager): Response
     {
-        $user = $userRepository->findOneBy(['username' => $username]);
+        try {
+            $user = $this->handleSession($request, $username,  $userRepository);
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
+        }
+        
         $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
 
         if (!$this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
@@ -212,7 +253,12 @@ final class Case1Controller extends AbstractController
                         WishlistRepository $wishlistRepository,
                         EntityManagerInterface $entityManager): Response
     {
-        $user = $userRepository->findOneBy(['username' => $username]);
+        try {
+            $user = $this->handleSession($request, $username,  $userRepository);
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
+        }
+        
         $wishlist = $wishlistRepository->findOneBy(['name' => $wishlist_name]);
 
         $form = $this->createFormBuilder(new Item())
