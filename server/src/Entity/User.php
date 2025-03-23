@@ -32,7 +32,7 @@ class User implements WishlistManagement
     #[ORM\Column(length: 20)]
     private ?string $username = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 255)]
     private ?string $password = null;
 
     #[ORM\Column(length: 50)]

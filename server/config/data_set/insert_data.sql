@@ -11,12 +11,12 @@ INSERT INTO `website` (`id`) VALUES
 --
 
 INSERT INTO `user` (`id`, `website_id`, `username`, `password`, `email`, `is_locked`, `dtype`) VALUES
-(1, 1, 'greg', '0000', 'grec@gmail.com', 0, 'user'),
-(2, 1, 'jose', 'fabio', 'jose@gmail.com', 0, 'user'),
-(3, 1, 'mamou', 'ocaml', 'mamou@gmail.com', 0, 'user'),
-(4, 1, 'elodie', 'rgpd', 'elodie@imt-atlantique.net', 0, 'user'),
-(5, 1, 'maud', 'fablab', 'maud@gmail.com', 0, 'admin'),
-(6, 1, 'sylvie', 'fise', 'sylvie@orange.fr', 0, 'admin');
+(1, 1, 'greg', '$2y$10$gRFH1ERnj1UsnlN.0/KYY.jgS1/QkUDZNx5hJLR8bywcLYIcxIYzG', 'grec@gmail.com', 0, 'user'),
+(2, 1, 'jose', '$2y$10$Ytwopd0EIFHtx3EQs2kugOAcVMrFQGQ7g0p/hzUH0ffiQl1JOfgSG', 'jose@gmail.com', 0, 'user'),
+(3, 1, 'mamou', '$2y$10$57cJecyuHOZmnCRJqlucye81phwnurU.NBGqCVCNb2z1qkq/UhlbS', 'mamou@gmail.com', 0, 'user'),
+(4, 1, 'elodie', '$2y$10$f0HuXoAHWq7s7CG95iBvi.qxBpHExfyUrHPwQSRJSg1usgSTqsmJK', 'elodie@imt-atlantique.net', 0, 'user'),
+(5, 1, 'maud', '$2y$10$vIjemuoT/dCRV5HGPOHzSel5RCt2bfh5dTps.7d4nzWld2uUYvDoW', 'maud@gmail.com', 0, 'admin'),
+(6, 1, 'sylvie', '$2y$10$Zv8zi58sQXFupkInOiaa5u5HKKuwHDzFp8o/oK26NWWezSNyUhaB6', 'sylvie@orange.fr', 0, 'admin');
 
 
 --

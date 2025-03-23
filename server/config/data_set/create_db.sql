@@ -86,7 +86,7 @@ CREATE TABLE `user` (
   `id` int NOT NULL,
   `website_id` int NOT NULL,
   `username` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_locked` tinyint(1) NOT NULL,
   `dtype` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
