@@ -1,8 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{%block title%} La liste des wishlists + invitatios d'un user {%endblock%}
+{% block title %} La liste des wishlists + invitatios d'un user {% endblock %}
+
+{% block style %}
 <link rel="stylesheet" href="{{ asset('css/wishlist.css') }}">
-{%block body%}
+{% endblock %}
+{% block body %}
 <div class="bloc1">
     <div> Invitations </div>
 
@@ -11,7 +14,7 @@
             {%for wishlist in invitedWishlists%} {# il faudra faire un render de invitedWishlists dans le controller#}
                 <tr>
                     <td>{{wishlist.name}}</td>
-                    <td>{{authors.name}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
+                    <td>{{authors.username}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
                     <td>
                         <form method="post" action="{{ path('app_user_wishlist_accepted', {'username': user.username}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('accept' ~ user.id) }}">
@@ -39,19 +42,16 @@
             {%for wishlist in wishlists%} {# il faudra faire un render de wishlists dans le controller#}
                 <tr>
                     <td>{{wishlist.name}}</td>
-                    <td>{{authors.name}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
+                    <td>{{authors.username}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
                     <td>
-                        <form method="post" action="{{ path('app_wishlist_edit') }}">
+                        <form method="post" action="{{ path('app_wishlist_edit', {'username': user.username}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('share' ~ user.id) }}">
-                            <button class="btn"><img src="{{ asset('ressources/images/edit.png') }}" id="edit"></button> {# TODO#}
+                            <button class="btn"><img src="{{ asset('ressources/images/edit.png') }}" id="edit" width ="10px" height ="10px"></button> {# TODO#}
                         </form>
                     </td>
                     <td>{{ include('wishlist/_delete_form.html.twig') }}</td> {# TODO: a revoir au niveau de l'interface#}
                     <td>
-                        <form method="post" action="{{ path('app_wishlist_shared') }}">
-                            <input type="hidden" name="_token" value="{{ csrf_token('share' ~ user.id) }}">
-                            <button class="btn"><img src="{{ asset('ressources/images/share.png') }}" id="share"></button> {# TODO#}
-                        </form>
+                    
                     </td>
                 </tr>
             {%endfor%}
@@ -59,9 +59,9 @@
     </div>
 
     <div>
-        <form method="post" action= "{{ path('app_wishlist_add') }}">
+        <form method="post" action= "{{ path('app_wishlist_new') }}">
             <input type="hidden" name="_token" value="{{ csrf_token('add' ~ user.id) }}">
-            <button><img src="{{ asset('ressources/images/add.png') }}" id="add"> Add a Wishlist</button>
+            <button><img src="{{ asset('ressources/images/add.png') }}" id="add" width ="10" height ="10px"> Add a Wishlist</button>
         </form>
     </div>
 </div>

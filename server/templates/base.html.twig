@@ -2,20 +2,30 @@
 <html lang="fr">
 <head>    
     <title>{% block title %}Wishlist App{% endblock %}</title>
-
-    {# Lien vers le fichier CSS #}
+    <meta charset="utf-8">
+    <link rel="icon" type="image/x-icon" href="{{ asset('ressources/images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/default.css') }}">
+    
+    {% block style %}
+    {% endblock %}
 </head>
 <body>
 
     {# Bandeau contenant le logo et le titre #}
-    <div class="container">
+    <header>
         <img src="{{ asset('ressources/images/logo.png') }}" id="logo">
-        <h1>Wishlist App</h1>
-    </div>
+        <h1> {{title | default("Webapp")}} </h1>
+    </header>
 
     {# Contenu spécifique des pages #}
-    {% block body %}{% endblock %}
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+
+
+    <footer>
+        <p> Webapp Project - Group 3 </p>
+    </footer>
 
 </body>
 </html>

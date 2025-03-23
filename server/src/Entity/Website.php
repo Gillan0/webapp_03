@@ -204,8 +204,10 @@ class Website implements Login, AdminUserManagement, AdminDashboard
         // Building Object
         $user = new User();
         $user->setUsername($username);
-        $user->setPassword($password);
+        $user->setPassword(password_hash($password, PASSWORD_DEFAULT));
         $user->setEmail($email);
+        $user->setIsLocked(false);
+        $user->setWebsite($this);
 
         $this->users->add($user);
         return $user;
@@ -215,19 +217,18 @@ class Website implements Login, AdminUserManagement, AdminDashboard
      * Handles login and returns the {@link User} account if credentials are correct
      * 
      * @param string $username
-     * @param string $password
+     * @param string $password Unhashed password
      * @throws \Exception
      * @return \App\Entity\User
      */
     public function login(string $username, string $password) : User {
-        if (strlen($username) > 20 || strlen($password) > 20) {
+        if (strlen($username) > 20 || strlen($password) > 255) {
             throw new Exception("Illegal arguments");
         }
-
         // Searches user
         $correspondingUser = null;
         foreach ($this->users as $user) {
-            if ($username == $user->getUsername() && $password == $user->getPassword()) {
+            if ($username == $user->getUsername() && password_verify($password, $user->getPassword())) {
                 $correspondingUser = $user;
                 break;
             }
@@ -260,6 +261,11 @@ class Website implements Login, AdminUserManagement, AdminDashboard
         }
         if (strlen($email) >50) {
             return false;
+        }
+        // Is an email address
+        if (!preg_match("/^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/ ", $email)) {
+            return false;
+
         }
         return true;                                   
     }

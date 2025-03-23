@@ -1,54 +1,59 @@
-
-
-  body {
-    background-color: lightcyan;
-    text-align: center;
-    align-items: center; 
-    font-family: "Papyrus";
-  }
-  
-  
-
- 
-  #logo{
-    width: 100px;
-    height: 100px;
-  }
-
-
-
-
-  .container {
-    display: flex;
-    align-items: left; /* Centre horizontalement */
-    text-align: top;
-    justify-content: flex-start; /* Aligne en haut */
-    border-style: double ;
-    border-color: black ; 
-    background-color: darkcyan;
-    gap: 15px; /* Espace entre le logo et le titre */
-    padding: 10px;
-    margin-bottom: 50px;
-  }
-
-
-  .table {
-    margin: 0 auto;           /* Centre horizontalement */
-    border-collapse: collapse; /* Pour que les bordures soient jointes */
-    width: 80%;       
-    margin-bottom: 30px;        
-  }
-
-  .table th{
-      padding: 10px;
-      text-align: left;
-      border: 1px solid #ddd;  /* Bordures légères pour séparer les cellules */
-      background-color: cadetblue;
-  }
-
-  .table td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ddd;  /* Bordures légères pour séparer les cellules */
+html, body {
+  height: 100%;
+  margin: 0;
 }
-  
+
+body {
+  background-color: white;
+  font-family: "Helvetica", sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+
+#logo {
+  width: 100px;
+  height: 100px;
+}
+
+main {
+  margin: 2%;
+  flex-grow: 1;
+}
+
+header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  color: white;
+  background-color: #14223C;
+  gap: 15px;
+}
+
+footer {
+  background-color: #14223C;
+  color: white;
+  padding: 5px;
+  text-align: center;
+}
+
+.table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  width: 80%;
+  margin-bottom: 30px;
+}
+
+.table th {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #606060;
+  background-color: #00B8DE;
+}
+
+.table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}

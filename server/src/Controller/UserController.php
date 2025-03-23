@@ -18,6 +18,7 @@ final class UserController extends AbstractController
     public function index(UserRepository $userRepository): Response
     {
         return $this->render('user/index.html.twig', [
+            'title' => 'User list',
             'users' => $userRepository->findAll(),
         ]);
     }
@@ -78,125 +79,5 @@ final class UserController extends AbstractController
 
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
     }
-
-
-    ############### Controllers ajoutés ########################
-
-    #[Route('/{username}/myWishlists', name: 'app_list_wishlists', methods: ['GET','POST'])]
-    public function show_list_wishlists(UserRepository $userRepository, User $user, EntityManagerInterface $entityManager): Response
-    {      
-        $user = $userRepository->find($user->id); #on suppose ici que l'utilise est bien identifié et existe bien dans la bd
-        $wishlists = $user->getWishlists(); 
-        $invitedWishlists = $user->getInvitedWishlists(); 
-        $authors = array();
-        foreach ($wishlists as $wishlist){
-            $authors = $wishlist->getAuthor();
-        }
-
-        return $this->render('wishlist/list_wishlist.html.twig', [
-            'user'=>$user,
-            'wishlists' => $wishlists,
-            'invitedWishlists' => $invitedWishlists,
-            'authors' => $authors,
-        ]);
-
-    }
-
-
-    #[Route('/{username}/myWishlists/invitationAccepted', name: 'app_user_wishlist_accepted', methods: ['GET', 'POST'])]
-    public function accept(Request $request, User $user, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('accept'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            $wishlist = $request->request->get('invitedWishlist');
-            $user->addWishlist($wishlist); 
-            $entityManager->flush();
-            $entityManager->refresh($user);
-        }
-
-        return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
-    }
-
-    #[Route('/{username}/myWishlists/invitationRefused', name: 'app_user_wishlist_refused', methods: ['GET', 'POST'])]
-    public function refuse(Request $request, User $user, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            $wishlist = $request->request->get('invitedWishlist');
-            $user->removeInvitedWishlist($wishlist);
-            $entityManager->flush();
-            $entityManager->refresh($user);
-        }
-
-        return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
-    }
-
-
-    #[Route('/login', name: 'app_user_login', methods:  ['GET','POST'])]
-    public function login(UserRepository $userRepository, Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createFormBuilder()
-        ->add('username_email', TextType::class, [
-            'label' => 'Username/Email',
-        ])
-        ->add('password', PasswordType::class, [
-            'label' => 'Password',
-        ])
-        ->add('login', SubmitType::class, [
-            'label' => 'Login',
-        ])
-        ->getForm(); 
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-            $user = $userRepository->findOneBySomeField($form->username_email);
-            
-            if ($user!=NULL){
-                return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
-            }
-        }
-        $e = new Exception("You are not registered.");
-        return $this->render('user/login.html.twig', [
-            'form' => $form,
-            'erreur' => $e,
-        ]);
-    }
-
-
-    #[Route('/signUp', name: 'app_user_sign_up', methods: ['GET','POST'])]
-    public function signUp(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $user = new User(); #We create an empty instance before registering
-
-        $form = $this->createFormBuilder()
-        ->add('username', TextType::class, [
-            'label' => 'Username',
-        ])
-        ->add('password', PasswordType::class, [
-            'label' => 'Password',
-        ])
-        ->add('email', SubmitType::class, [
-            'label' => 'Email',
-        ])
-        ->add('login', SubmitType::class, [
-            'label' => 'Create User',
-        ])
-        ->getForm(); 
-
-        $form->handleRequest($request);
-
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('user/login.html.twig', [
-            'form' => $form,
-        ]);
-    }
-
-
 
 }

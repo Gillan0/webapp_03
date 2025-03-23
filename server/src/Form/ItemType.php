@@ -18,7 +18,7 @@ class ItemType extends AbstractType
             ->add('description')
             ->add('price')
             ->add('url')
-            ->add('itemFromWishlist', EntityType::class, [
+            ->add('wishlist', EntityType::class, [
                 'class' => Wishlist::class,
                 'choice_label' => 'id',
             ])

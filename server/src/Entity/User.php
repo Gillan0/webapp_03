@@ -330,7 +330,7 @@ class User implements WishlistManagement
             throw new Exception("Only author can invite other users");
         }
         
-        $user = $this->website->findUser($username);
+        $user = $this->website->findUserByUsername($username);
         $user->addInvitedWishlist($wishlist);
         $wishlist->addInvitedUser($user);
 

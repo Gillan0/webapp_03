@@ -1,0 +1,24 @@
+
+.form-group {
+  align-items: flex-start;
+}
+
+.form-group input {
+  
+  border-radius: 5px;
+  border-width: 1px;
+}
+
+.form-confirm {
+  background-color: #b1ca34;
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 10px;
+  color: white;
+  font-weight: bold;
+}
+
+.form-confirm:hover {
+  background-color: #a2b923;
+}
