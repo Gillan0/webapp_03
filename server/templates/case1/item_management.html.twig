@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} 
+{{wishlist.name}} - Item Management
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ asset('css/list_wishlists.css') }}?v={{ random() }}">
+<link rel="stylesheet" href="{{ asset('css/form.css') }}?v={{ random() }}">
+<link rel="stylesheet" href="{{ asset('css/login.css') }}?v={{ random() }}">
+
+{% endblock %}
+
+{% block body %}
+
+<div class="bloc1">
+    <h3> Items </h3>
+
+    <div>
+        
+        {% if error is defined %}
+            <p style = "color:red">
+                {{ error }}
+            </p>
+        {% endif %}
+        
+        <table>
+        
+            {% if wishlist.items is empty %}
+            <p> There is no items in this wishlist </p>
+            {% endif %}
+            <thead>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Price (€)</th>
+                <th>Website</th>
+                <th>Actions</th>
+            </thead>
+             <tr>
+           {{ form_start(form, {'attr': {'class': 'form-container'}}) }}
+                <td class="form-group">
+                    {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}<br>
+                    {{ form_errors(form.title) }}
+                </td>
+
+                <td class="form-group">
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}<br>
+                    {{ form_errors(form.description) }}
+                </td>
+                
+                <td class="form-group">
+                    {{ form_widget(form.price, {'attr': {'class': 'form-control'}}) }}<br>
+                    {{ form_errors(form.price) }}
+                </td>
+
+                <td class="form-group">
+                    {{ form_widget(form.url, {'attr': {'class': 'form-control'}}) }}<br>
+                    {{ form_errors(form.url) }}
+                </td>
+                <td>
+                    <button class="btn btn-primary form-confirm">Add Item</button>
+                </td>
+            {{ form_end(form) }}
+                
+            </tr>
+
+            {%for item in wishlist.items %} 
+                <tr>
+                    <td>{{item.title}}</td>
+                    <td>{{item.description}}</td> 
+                    <td>{{item.price}} €</td>
+                    <td><a href="{{item.url}}"> Link </a></td>
+                    <td>
+                        <form method="post" action="" onsubmit="return alert('TO DO')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('share' ~ user.id) }}">
+                            <button class="btn">
+                                <img src="{{ asset('ressources/images/edit.png') }}" id="edit" width ="10px" height ="10px">
+                            </button>
+                        </form>
+                        
+                        <form method="post" action="" onsubmit="return alert('TO DO');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ wishlist.id) }}">
+                            <button class="btn">
+                                <img src="{{ asset('ressources/images/delete.png') }}" id="delete">
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {%endfor%}
+           
+        </table>
+    </div>
+</div>
+{%endblock%}

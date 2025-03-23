@@ -194,7 +194,15 @@ class Wishlist implements WishlistContributor, ItemManagement
     /**
      * @return Collection<int, Item>
      */
-    public function getItems(SortOrder $sortOrder): Collection
+    public function getItems(): Collection
+    {
+        return $this->items;
+    }
+
+    /**
+     * @return Collection<int, Item>
+     */
+    public function getSortedItems(SortOrder $sortOrder): Collection
     {
         if ($sortOrder->equals(SortOrder::PriceAscending)) {
             return $this->items->sortBy(fn(Item $item) => $item->getPrice());
@@ -205,7 +213,7 @@ class Wishlist implements WishlistContributor, ItemManagement
         }
 
         // Default value
-        return $this->items;
+        return $this->getItems();
     }
 
     public function addItem(Item $item): static
@@ -343,6 +351,7 @@ class Wishlist implements WishlistContributor, ItemManagement
 
         $item = new Item();
 
+        $item->setWishlist($this);
         $item->setTitle($title);
         $item->setDescription($description);
         $item->setUrl($url);

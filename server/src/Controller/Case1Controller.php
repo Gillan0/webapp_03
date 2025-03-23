@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Wishlist;
+use App\Entity\Item;
 use App\Repository\UserRepository;
 use App\Repository\WishlistRepository;
 use App\Repository\WebsiteRepository;
@@ -12,7 +13,9 @@ use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -200,6 +203,65 @@ final class Case1Controller extends AbstractController
                                         Response::HTTP_SEE_OTHER);
 
     }   
+
+    #[Route('/{username}/itemManagement/{wishlist_name}', name: 'app_user_item_management', methods: ['GET','POST'])]
+    public function manageWishlist(Request $request, 
+                        string $username, 
+                        string $wishlist_name, 
+                        UserRepository $userRepository, 
+                        WishlistRepository $wishlistRepository,
+                        EntityManagerInterface $entityManager): Response
+    {
+        $user = $userRepository->findOneBy(['username' => $username]);
+        $wishlist = $wishlistRepository->findOneBy(['name' => $wishlist_name]);
+
+        $form = $this->createFormBuilder(new Item())
+        ->add('title', TextType::class)
+        ->add('description', TextType::class)
+        ->add('url', UrlType::class)
+        ->add('price', NumberType::class, ['html5' => true,])
+        ->getForm(); 
+
+        $errorMessage = null;
+
+        try {            
+            $form->handleRequest($request);
+        } catch (Exception $e) {
+            $errorMessage = $e->getMessage();
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $formData = $form->getData();
+            $title = trim(htmlspecialchars($formData->getTitle()));
+            $description = trim(htmlspecialchars($formData->getDescription()));
+            $url = trim(htmlspecialchars($formData->getUrl()));
+            $price = trim(htmlspecialchars($formData->getPrice()));
+
+            try {
+                $item = $wishlist->addItemParams($title, $description, $url, $price);
+                
+                $entityManager->persist($wishlist);
+                $entityManager->persist($item);
+
+                $entityManager->flush();
+
+                return $this->redirectToRoute('app_user_item_management',
+                                             ["username" => $user->getUsername(),
+                                            "wishlist_name" => $wishlist->getName()], 
+                                             Response::HTTP_SEE_OTHER);
+            } catch (Exception $e) {
+                $errorMessage = $e->getMessage(); 
+            }    
+        }
+
+        return $this->render('case1/item_management.html.twig', [
+            'title' => $wishlist->getName(),
+            'user' => $user,
+            'wishlist' => $wishlist,
+            'form' => $form,
+            'error' => $errorMessage,
+        ]);
+    }
 
 
 

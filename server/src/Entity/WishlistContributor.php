@@ -32,7 +32,7 @@ interface WishlistContributor
      * @param \App\Entity\SortOrder $order
      * @return void
      */
-    public function getItems(SortOrder $order) : Collection;
+    public function getSortedItems(SortOrder $order) : Collection;
 
      /**
      * Purchases an {@link Item} from the wishlist
