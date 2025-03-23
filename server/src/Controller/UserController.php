@@ -82,29 +82,90 @@ final class UserController extends AbstractController
 
     ############### Controllers ajoutés ########################
 
-    #[Route('/login', name: 'app_user_login', methods:  ['GET','POST'])]
-    public function login(UserRepository $userRepository, Request $request): Response
+    use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+
+    #[Route('/login', name: 'app_user_login', methods: ['GET', 'POST'])]
+    public function login(UserRepository $userRepository, Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
     {   
         $user = new User();
         $form = $this->createFormBuilder($user)
-        ->add('email')
-        ->add('password')
+            ->add('email')
+            ->add('password')
+            ->getForm();
+    
+        $form->handleRequest($request);
+    
+        // Initialisation de la variable d'erreur
+        $errorMessage = null;
+    
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $data = $form->getData();
+            $user = $userRepository->findUserByEmail($data->getEmail());
+    
+            // Si l'utilisateur existe dans la base de données
+            if ($user !== null) {
+
+                if ($passwordEncoder->isPasswordValid($user, $data->getPassword())) {
+
+                    return $this->redirectToRoute('app_list_wishlists', [
+                        'id' => $user->getId(),
+                        'username' => $user->getUsername(),
+                    ], Response::HTTP_SEE_OTHER);
+                } else {
+
+                    $errorMessage = "Invalid password!";
+                }
+            } else {
+
+                $errorMessage = "You are not registered!";
+            }
+        }
+    
+        return $this->render('user/login.html.twig', [
+            'form' => $form,
+            'erreur' => $errorMessage,  // Passe l'erreur uniquement si elle existe
+        ]);
+    }
+    
+
+    #[Route('/signUp', name: 'app_user_sign_up', methods: ['GET','POST'])]
+    public function signUp(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $user = new User(); 
+
+        $form = $this->createFormBuilder()
+        ->add('username', TextType::class, [
+            'label' => 'Username',
+        ])
+        ->add('password', PasswordType::class, [
+            'label' => 'Password',
+        ])
+        ->add('email', SubmitType::class, [
+            'label' => 'Email',
+        ])
+        ->add('sign Up', SubmitType::class, [
+            'label' => 'Create User',
+        ])
         ->getForm(); 
 
         $form->handleRequest($request);
 
+
         if ($form->isSubmitted() && $form->isValid()) {
-            $email = $form->get('email')->getData();
-            $user = $userRepository->findUserByEmail($email);
-            
-            if ($user!=NULL){
-                return $this->redirectToRoute('app_list_wishlists', ['id'=>$user->getId(), 'username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
-            }
+            $data = $form->getData();
+            $user -> setUsername($data->getSurname());
+            $user -> setPassword($data->getPassword());
+            $user -> setEmail($data->getEmail());
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
         }
-        $e = "You are not registered or your login/password is invalid";
+
         return $this->render('user/login.html.twig', [
             'form' => $form,
-            'erreur' => $e,
         ]);
     }
 
@@ -154,41 +215,7 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
     }
 
-
-
-    #[Route('/signUp', name: 'app_user_sign_up', methods: ['GET','POST'])]
-    public function signUp(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $user = new User(); #We create an empty instance before registering
-
-        $form = $this->createFormBuilder()
-        ->add('username', TextType::class, [
-            'label' => 'Username',
-        ])
-        ->add('password', PasswordType::class, [
-            'label' => 'Password',
-        ])
-        ->add('email', SubmitType::class, [
-            'label' => 'Email',
-        ])
-        ->add('login', SubmitType::class, [
-            'label' => 'Create User',
-        ])
-        ->getForm(); 
-
-        $form->handleRequest($request);
-
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('user/login.html.twig', [
-            'form' => $form,
-        ]);
-    }
+    
 
 
     #[Route('/{id}/wishlist/add', name: 'app_user_wishlist_add', methods: ['GET','POST'])]
