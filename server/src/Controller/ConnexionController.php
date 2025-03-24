@@ -149,6 +149,10 @@ final class ConnexionController extends AbstractController
         $user = $expectedUser;
         $request->getSession()->set('user', $user);
 
+        if ($user->isLocked()) {
+            throw new Exception("Account has been locked by admin");
+        }
+
         return $user;
     }
 
