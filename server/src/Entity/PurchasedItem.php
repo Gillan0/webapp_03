@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PurchasedItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 
 #[ORM\Entity(repositoryClass: PurchasedItemRepository::class)]
 /**

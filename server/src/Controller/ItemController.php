@@ -98,7 +98,7 @@ final class ItemController extends AbstractController
 
         // Associe les données de l'item acheté
         $purchasedItem = $item->getWishlist()->purchase($user, $item, $proof);
-        $purchasedItem->setCongratulatoryMessage($message);
+        $purchasedItem->setCongratuloryMessage($message);
 
         // Sauvegarde les modifications dans la base de données
         $entityManager->flush();
