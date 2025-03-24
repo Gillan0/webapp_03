@@ -16,16 +16,20 @@ class UtilFilters
      * @param \DateTimeInterface $deadline
      * @return bool
      */
-    public static function isValidDate(\DateTimeInterface $deadline){
-        if (UtilFilters::isValid($deadline)){
-            $date = new DateTime();
-            if ($deadline>$date->format('Y-m-d H:i:s')){
-                return true;
-            }
-            return false;            
-        }
+    public static function isValidDate(\DateTimeInterface $deadline): bool
+{
+    if (!UtilFilters::isValid($deadline)) {
         return false;
     }
+    $currentDate = new DateTime(); 
+    
+    if ($deadline <= $currentDate) { 
+        return false;
+    }
+    
+    
+    return true;
+}
     
     
     /**
@@ -36,8 +40,11 @@ class UtilFilters
      * @return bool
      */
     public static function isValid($date, $format = 'Y-m-d H:i:s'){
-        $dt = DateTime::createFromFormat($format, $date->format('Y-m-d H:i:s'));
-        return $dt && $dt->format($format) === $date;
+        $formattedDate = $date->format($format);
+        $reconstructedDateTime = DateTime::createFromFormat($format, datetime: $formattedDate);
+        
+        return $reconstructedDateTime && $reconstructedDateTime->format($format) === $formattedDate;
+
     }
 
 }

@@ -265,6 +265,8 @@ class User implements WishlistManagement
         $wishlist->setAuthor($this);
         $wishlist->setName($name);
         $wishlist->setDeadline($date);
+        $wishlist->setDisplayUrl("TO DO STUB");
+        $wishlist->setSharingUrl("TO DO STUB");
         $this->wishlists->add($wishlist);
 
         return $wishlist;
