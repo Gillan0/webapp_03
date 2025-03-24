@@ -30,7 +30,6 @@ class WebsiteRepository extends ServiceEntityRepository
     //            ->getResult()
     //        ;
     //    }
-
     //    public function findOneBySomeField($value): ?Website
     //    {
     //        return $this->createQueryBuilder('w')
