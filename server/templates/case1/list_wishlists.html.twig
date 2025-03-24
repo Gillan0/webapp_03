@@ -88,10 +88,10 @@
             {{ form_end(form) }}
                 
             </tr>
-            {%for wishlist in wishlists %} {# il faudra faire un render de wishlists dans le controller#}
+            {%for wishlist in wishlists %} 
                 <tr>
                     <td>{{wishlist.name}}</td>
-                    <td>{{wishlist.author.username}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
+                    <td>{{wishlist.author.username}}</td> 
                     <td>{{wishlist.deadline.format('Y-m-d h:i')}}</td> 
                     <td><a href="itemManagement/{{wishlist.name}}">Manage items</a></td> 
                     <td>                    
