@@ -8,7 +8,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping as ORM; 
+use Ramsey\Uuid\Guid\Guid;
 
 #[ORM\Entity(repositoryClass: WishlistRepository::class)]
 /**
@@ -18,6 +19,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @author Antonino Gillard <antonino.gillard@imt-atlantique.net>
  * @author Lucien Duhamel <lucien.duhamel@imt-atlantique.net> 
  * 
+ * For URL : 
+ * @author Suzanne Veignant <suzanne.veignant@imt-atlantique.net>
+ * @author Julien Abraul Guilherme "<julien.abraul-guilherme@imt-atlantique.net>
  */
 class Wishlist implements WishlistContributor, ItemManagement
 {
@@ -32,8 +36,11 @@ class Wishlist implements WishlistContributor, ItemManagement
     #[ORM\Column(length: 20)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $sharingUrl = null;
+    #[ORM\Column(type: 'string', length: 36, unique: true)]
+    private string $sharingUrl;
+
+    // #[ORM\Column(length: 100)]
+    // private ?string $sharingUrl = null;
 
     #[ORM\Column(length: 100)]
     private ?string $displayUrl = null;
@@ -66,6 +73,7 @@ class Wishlist implements WishlistContributor, ItemManagement
         $this->contributors = new ArrayCollection();
         $this->invitedUser = new ArrayCollection();
         $this->items = new ArrayCollection();
+        $this->sharingUrl = Guid::uuid4()->toString();
     }
 
     public function getId(): ?int
