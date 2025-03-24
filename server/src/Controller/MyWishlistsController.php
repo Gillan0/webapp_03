@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Entity\Wishlist;
 use App\Entity\Item;
+use \DateTime;
 use App\Repository\UserRepository;
 use App\Repository\WishlistRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,7 +48,11 @@ final class MyWishlistsController extends AbstractController
 
         $form = $this->createFormBuilder(new Wishlist())
         ->add('name', TextType::class)
-        ->add('deadline', DateTimeType::class)
+        ->add('deadline', DateTimeType::class, [
+            'widget' => 'single_text',
+            'input' => 'datetime',
+            'html5' => true,
+        ])
         ->getForm(); 
 
         $errorMessage = null;
@@ -61,18 +66,22 @@ final class MyWishlistsController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
             $name = trim(htmlspecialchars($formData->getName()));
-            $date = trim(htmlspecialchars($formData->getDeadline()));
+            $date = $formData->getDeadline();
 
             try {
                 $wishlist = $user->createWishlist($name, $date);
+                $entityManager->persist($user);
                 $entityManager->persist($wishlist);
                 $entityManager->flush();
+                
+                $errorMessage = $wishlist->getId();
 
                 return $this->redirectToRoute('app_list_wishlists',
-                                             ["username" => $user->getUsername()], 
-                                             Response::HTTP_SEE_OTHER);
+                                                ["username" => $user->getUsername()], 
+                                                Response::HTTP_SEE_OTHER);
+                 
             } catch (Exception $e) {
-                $errorMessage = $e->getMessage(); 
+                $errorMessage = $e->getMessage();
             }    
         }
 

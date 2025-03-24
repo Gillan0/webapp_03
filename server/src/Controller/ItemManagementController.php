@@ -45,6 +45,10 @@ final class ItemManagementController extends AbstractController
         
         $wishlist = $wishlistRepository->findOneBy(['name' => $wishlist_name]);
 
+        if (empty($wishlist)) {
+            return $this->redirectToRoute('app_list_wishlists', ['username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
+        }
+
         if (!$wishlist->getAuthor()->equals($user)) {
             return $this->redirectToRoute('app_list_wishlists', ['username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
         }

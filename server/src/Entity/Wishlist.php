@@ -26,7 +26,7 @@ class Wishlist implements WishlistContributor, ItemManagement
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $deadline = null;
 
     #[ORM\Column(length: 20)]
@@ -80,10 +80,11 @@ class Wishlist implements WishlistContributor, ItemManagement
 
     public function setDeadline(\DateTimeInterface $deadline): static
     {
-        
+        /*
         if (!UtilFilters::isValidDate($deadline)){
             throw new Exception("The deadline of the wishlist is not set with the proper format (Y-m-d H:i:s) or is set in the past.");
         }
+            */
         $this->deadline = $deadline;
 
         return $this;
