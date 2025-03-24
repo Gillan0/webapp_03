@@ -45,6 +45,7 @@ final class MyWishlistsController extends AbstractController
 
         $wishlists = $user->getWishlists(); 
         $invitedWishlists = $user->getInvitedWishlists(); 
+        
 
         $form = $this->createFormBuilder(new Wishlist())
         ->add('name', TextType::class)
@@ -73,8 +74,7 @@ final class MyWishlistsController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->persist($wishlist);
                 $entityManager->flush();
-                
-                $errorMessage = $wishlist->getId();
+            
 
                 return $this->redirectToRoute('app_list_wishlists',
                                                 ["username" => $user->getUsername()], 
@@ -274,21 +274,79 @@ final class MyWishlistsController extends AbstractController
     }
 
 
-    #[Route('/{username}/myWishlists/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]  #A MODIF
-    public function edit(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
+    #[Route('/{username}/myWishlists/{wishlist_id}/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]  #A MODIF
+    public function edit(   Request $request, 
+                            string $username, 
+                            string $wishlist_id, 
+                            UserRepository $userRepository, 
+                            WishlistRepository $wishlistRepository,
+                            EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(WishlistType::class, $wishlist);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+        $errorMessage = null;
 
-            return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+        try {
+            $user = ConnexionController::handleSession($request, $username,  $userRepository);
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('wishlist/edit.html.twig', [
-            'wishlist' => $wishlist,
+        $wishlist_edited = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+
+        $form= $this->createFormBuilder($wishlist_edited)
+        ->add('name', TextType::class)
+        ->add('deadline', DateTimeType::class, [
+            'widget' => 'single_text',
+            'input' => 'datetime',
+            'html5' => true,
+        ])
+        ->getForm(); 
+
+        
+
+        try {            
+            $form->handleRequest($request);
+        } catch (Exception $e) {
+            $errorMessage = $e->getMessage();
+        }
+
+        if (!$this->isCsrfTokenValid('edit' . $user->getId(), $request->request->get('_token'))) {
+            $errorMessage = 'Invalid CSRF token';
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            
+            $formData = $form->getData();
+            $name = trim(htmlspecialchars($formData->getName()));
+            $date = $formData->getDeadline();
+
+            try {
+                $wishlist_edited->setName($name);
+                $wishlist_edited->setDeadline($date);
+    
+                $entityManager->persist($wishlist_edited);
+                $entityManager->flush();
+            
+
+                return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
+                 
+            } catch (Exception $e) {
+                $errorMessage = $e->getMessage();
+            }  
+            
+        }
+
+        $wishlists = $user->getWishlists(); 
+        $invitedWishlists = $user->getInvitedWishlists(); 
+
+        return $this->render('case1/list_wishlists.html.twig', [
+            'title' => $user->getUsername().' - My Wishlists',
+            'user'=>$user,
+            'wishlists' => $wishlists,
+            'invitedWishlists' => $invitedWishlists,
             'form' => $form,
+            'error' => $errorMessage,
         ]);
     }
 
