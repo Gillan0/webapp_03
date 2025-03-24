@@ -97,7 +97,7 @@ final class MyWishlistsController extends AbstractController
 
     }
 
-    #[Route('/{username}/{wishlist_id}', name: 'app_user_delete_wishlist', methods: ['POST'])]
+    #[Route('/{username}/{wishlist_id}/delete', name: 'app_user_delete_wishlist', methods: ['POST'])]
     public function delete(Request $request,
                             string $username, 
                             string $wishlist_id, 
@@ -194,19 +194,6 @@ final class MyWishlistsController extends AbstractController
 
     }   
 
-
-
-    #[Route('/{username}/wishlist/add', name: 'app_user_wishlist_add', methods: ['GET','POST'])]
-    public function add(Request $request, User $user, EntityManagerInterface $entityManager): Response
-    {
-        
-        if ($this->isCsrfTokenValid('add'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($user);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
-    }
 
     #[Route('/{username}/{wishlistId}/shared', name: 'app_wishlist_shared', methods: ['GET','POST'])]
     public function share(Request $request, string $username, string $wishlistId, UserRepository $userRepository, WishlistRepository $wishlistRepository, EntityManagerInterface $entityManager): Response
