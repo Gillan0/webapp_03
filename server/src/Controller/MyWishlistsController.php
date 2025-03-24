@@ -109,7 +109,11 @@ final class MyWishlistsController extends AbstractController
         } catch (Exception $e) {
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id, 'author' => $user]);
+
+        if (empty($wishlist)) {
+            return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
+        }
 
         if (!$this->isCsrfTokenValid('delete' . $wishlist->getId(), $request->getPayload()->getString('_token'))) {            
             return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
@@ -145,7 +149,7 @@ final class MyWishlistsController extends AbstractController
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }        
         
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id, 'author' => $user]);
 
         if (!$this->isCsrfTokenValid('accept'.$user->getId(), $request->getPayload()->getString('_token'))) {
             return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
@@ -176,7 +180,7 @@ final class MyWishlistsController extends AbstractController
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
         
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id, 'author' => $user]);
 
         if (!$this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
             return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
@@ -216,7 +220,7 @@ final class MyWishlistsController extends AbstractController
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
 
-        $wishlist = $wishlistRepository->findOneBy(["sharingUrl" => $request->getUri()]);
+        $wishlist = $wishlistRepository->findOneBy(["sharingUrl" => 'invite/'.$sharing_uuid]);
 
         if (empty($wishlist)) {    
             return $this->redirectToRoute('app_list_wishlists', 
@@ -247,38 +251,6 @@ final class MyWishlistsController extends AbstractController
     }
 
     
-
-
-    #[Route('/{username}/{wishlistId}/displayed', name: 'app_wishlist_displayed', methods: ['GET','POST'])]
-    public function display(Request $request, string $username, string $wishlistId, UserRepository $userRepository, WishlistRepository $wishlistRepository, EntityManagerInterface $entityManager): Response
-    {
-        
-        $user = $userRepository->findOneBy(['username' => $username]);
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlistId]);
-
-        if ($this->isCsrfTokenValid('display'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            
-            $displayUrl = $wishlist->getDisplayUrl();
-            return $this->render('case1/list_wishlists.html.twig', [
-                'title' => 'MyWishlists Page',
-                'user' => $user,
-                'wishlists' => $user->getWishlists(),
-                'invitedWishlists' => $user->getInvitedWishlists(),
-                'authors' => $wishlist->getAuthor(),
-                'displayUrl' => $displayUrl,
-            ]);
-        }
-
-        return $this->render('case1/list_wishlists.html.twig', [
-            'title' => 'MyWishlists Page',
-            'user' => $user,
-            'wishlists' => $user->getWishlists(),
-            'invitedWishlists' => $user->getInvitedWishlists(),
-            'authors' => $wishlist->getAuthor(),
-            'erreur' => "Invalid CSRF token.",
-        ]);
-    }
-
 
     #[Route('/{username}/myWishlists/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]  #A MODIF
     public function edit(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response

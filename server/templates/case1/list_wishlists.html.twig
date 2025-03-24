@@ -158,6 +158,7 @@
                 <th>Title</th>
                 <th>Author</th>
                 <th>Deadline</th>
+                <th>Items</th>
                 <th>Url</th>
             </thead>
             {%for wishlist in user.contributingWishlists %} {# il faudra faire un render de wishlists dans le controller#}
@@ -165,7 +166,7 @@
                     <td>{{wishlist.name}}</td>
                     <td>{{wishlist.author.username}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
                     <td>{{wishlist.deadline.format('Y-m-d h:i')}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
-
+                    <td><a href="../{{wishlist.author.username}}/itemManagement/{{wishlist.name}}">See items</a></td> 
                     <td>
                         Go to <a href="{#{{wishlist.displayUrl}}#}" onclick="alert('TO DO\n You will remain here')">{{wishlist.name}}</a>
                     </td>
