@@ -115,7 +115,7 @@
                     <td><a href="itemManagement/{{wishlist.name}}">See items</a></td> 
                     <td>                    
                         <button class="btn" >
-                            <a href="{{wishlist.displayUrl}}">
+                            <a href="../{{wishlist.displayUrl}}">
                                 <img src="{{ asset('ressources/images/display.png') }}" id="display">
                             </a>        
                         </button>                        
@@ -179,6 +179,7 @@
 <script>
 function copyToClipboard(text) {
     // Copy the text inside the text field
+    text = location.host +'/'+ text
     navigator.clipboard.writeText(text);
 
     // Alert the copied text
