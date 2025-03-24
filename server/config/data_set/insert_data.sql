@@ -33,8 +33,8 @@ INSERT INTO `admin` (`id`) VALUES
 --
 
 INSERT INTO `wishlist` (`id`, `author_id`, `deadline`, `name`, `sharing_url`, `display_url`) VALUES
-(1, 5, '2026-01-31', 'Fablab', 'URL TO BE ADDED LATER', 'URL TO BE ADDED LATER'),
-(2, 3, '2025-08-20', 'Cadeau Elodie', 'URL TO BE ADDED LATER', 'URL TO BE ADDED LATER');
+(1, 5, '2026-01-31', 'Fablab', 'invite/efc5582c-c6ca-455d-be4c-e93499b111c6', '1c5a7c2f-31fd-4aa0-8301-d1bfdffd88f8'),
+(2, 3, '2025-08-20', 'Cadeau Elodie', 'invite/efc5582c-c6ca-455d-be4c-e93499b111c5', '1c5a7c2f-31fd-4aa0-8301-d1bfdffd88f7');
 
 
 --
