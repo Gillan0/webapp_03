@@ -82,7 +82,7 @@ class Wishlist implements WishlistContributor, ItemManagement
     {
         
         if (!UtilFilters::isValidDate($deadline)){
-            throw new InvalidArgumentException("The deadline of the wishlist is not set with the proper format (Y-m-d H:i:s) or is set in the past.");
+            throw new Exception("The deadline of the wishlist is not set with the proper format (Y-m-d H:i:s) or is set in the past.");
         }
         $this->deadline = $deadline;
 
@@ -102,7 +102,7 @@ class Wishlist implements WishlistContributor, ItemManagement
     public function setName(string $name): static
     {
         if (strlen($name)>20){
-            throw new InvalidArgumentException("The name of the wishlist is too long");
+            throw new Exception("The name of the wishlist is too long");
         }
 
         $this->name = $name;
@@ -119,7 +119,7 @@ class Wishlist implements WishlistContributor, ItemManagement
     {
 
         if (strlen($sharingUrl)>100){
-            throw new InvalidArgumentException("The length of the sharing url is too long");
+            throw new Exception("The length of the sharing url is too long");
         }
 
         $this->sharingUrl = $sharingUrl;
@@ -135,7 +135,7 @@ class Wishlist implements WishlistContributor, ItemManagement
     public function setDisplayUrl(string $displayUrl): static
     {
         if (strlen($displayUrl)>100){
-            throw new InvalidArgumentException("The length of the display url is too long");
+            throw new Exception("The length of the display url is too long");
         }
         $this->displayUrl = $displayUrl;
 

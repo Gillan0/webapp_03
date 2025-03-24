@@ -1,5 +1,7 @@
 <?php
 namespace App\Entity;
+use \DateTime;
+use \DateTimeInterface;
 
 /**
  * Util class containing methods to check the validity of inputs.
@@ -34,7 +36,7 @@ class UtilFilters
      * @return bool
      */
     public static function isValid($date, $format = 'Y-m-d H:i:s'){
-        $dt = DateTime::createFromFormat($format, $date);
+        $dt = DateTime::createFromFormat($format, $date->format('Y-m-d H:i:s'));
         return $dt && $dt->format($format) === $date;
     }
 

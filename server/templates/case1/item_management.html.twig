@@ -69,7 +69,7 @@
                     <td>{{item.title}}</td>
                     <td>{{item.description}}</td> 
                     <td>{{item.price}} €</td>
-                    <td><a href="{{item.url}}"> Link </a></td>
+                    <td><a href="{{item.url}}" target="_blank"> Link </a></td>
                     <td>
                         <form method="post" action="" onsubmit="return alert('TO DO')">
                             <input type="hidden" name="_token" value="{{ csrf_token('share' ~ user.id) }}">

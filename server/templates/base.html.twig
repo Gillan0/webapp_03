@@ -15,6 +15,16 @@
     <header>
         <img src="{{ asset('ressources/images/logo.png') }}" id="logo">
         <h1> {{title | default("Webapp")}} </h1>
+        {% if user is defined %}
+           <div style="position: absolute; right: 0; display: flex; align-items: center; justify-content: space-evenly; width: 200px;">
+                <a href="{{ path('app_list_wishlists', {'username' : user.username}) }}">
+                    <img src="{{ asset('ressources/images/account.png') }}" width="40px" height="40px">
+                </a>
+                <a href="{{ path('app_user_logout', {}) }}">
+                    <img src="{{ asset('ressources/images/logout.png') }}" width="40px" height="40px">
+                </a>
+            </div>
+        {% endif %}
     </header>
 
     {# Contenu spécifique des pages #}
