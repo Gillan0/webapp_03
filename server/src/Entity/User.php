@@ -265,9 +265,13 @@ class User implements WishlistManagement
         $wishlist->setAuthor($this);
         $wishlist->setName($name);
         $wishlist->setDeadline($date);
-        $wishlist->setDisplayUrl("TO DO STUB");
-        $wishlist->setSharingUrl("TO DO STUB");
         $this->wishlists->add($wishlist);
+        
+        $randomBytes = random_bytes(10);
+        $inviteUuid = bin2hex($randomBytes);
+
+        $wishlist->setDisplayUrl("TO DO STUB");
+        $wishlist->setSharingUrl("http://localhost:8000/invite/".$inviteUuid);
 
         return $wishlist;
     }
@@ -335,11 +339,11 @@ class User implements WishlistManagement
 
         $user = $this->website->findUserByUsername($username);
 
-        if (!$wishlist->getContributors()->contains($user)) {
+        if ($wishlist->getContributors()->contains($user)) {
             throw new Exception("User already contributes");
         }
 
-        if (!$wishlist->getInvitedUser()->contains($user)) {
+        if ($wishlist->getInvitedUser()->contains($user)) {
             throw new Exception("User already invited");
         }
         
