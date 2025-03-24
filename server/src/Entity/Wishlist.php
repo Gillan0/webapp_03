@@ -264,18 +264,18 @@ class Wishlist implements WishlistContributor, ItemManagement
      * Removes the item from the wishlist and replaces it with a {@link PurchasedItem}
      * in the Item collection
      * 
-     * @param \App\Entity\User $user
+     * @param string $username alleged name of the person who buys the item
      * @param \App\Entity\Item $item
      * @param string $proof
      * @return PurchasedItem
      */
-    public function purchase(User $user, Item $item, string $proof) : PurchasedItem {
+    public function purchase(string $username, Item $item, string $proof) : PurchasedItem {
 
         $this->items->removeElement($item);
 
         // Build purchased item
         $purchased_item = new PurchasedItem();
-        $purchased_item->setBuyer($user);
+        $purchased_item->setBuyer($username);
         $purchased_item->setPurchaseProof($proof);
         // Rebuild item part
         $purchased_item->setDescription($item->getDescription());
