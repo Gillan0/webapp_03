@@ -266,12 +266,6 @@ class User implements WishlistManagement
         $wishlist->setName($name);
         $wishlist->setDeadline($date);
         $this->wishlists->add($wishlist);
-        
-        $randomBytes = random_bytes(10);
-        $inviteUuid = bin2hex($randomBytes);
-
-        $wishlist->setDisplayUrl("TO DO STUB");
-        $wishlist->setSharingUrl("http://localhost:8000/invite/".$inviteUuid);
 
         return $wishlist;
     }

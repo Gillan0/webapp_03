@@ -18,10 +18,6 @@ use Ramsey\Uuid\Guid\Guid;
  * 
  * @author Antonino Gillard <antonino.gillard@imt-atlantique.net>
  * @author Lucien Duhamel <lucien.duhamel@imt-atlantique.net> 
- * 
- * For URL : 
- * @author Suzanne Veignant <suzanne.veignant@imt-atlantique.net>
- * @author Julien Abraul Guilherme "<julien.abraul-guilherme@imt-atlantique.net>
  */
 class Wishlist implements WishlistContributor, ItemManagement
 {
@@ -36,14 +32,13 @@ class Wishlist implements WishlistContributor, ItemManagement
     #[ORM\Column(length: 20)]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'string', length: 36, unique: true)]
+    
+    #[ORM\Column(type: 'string', length: 100, unique: true)]
     private string $sharingUrl;
 
-    // #[ORM\Column(length: 100)]
-    // private ?string $sharingUrl = null;
+    #[ORM\Column(type: 'string', length: 100, unique: true)]
 
-    #[ORM\Column(length: 100)]
-    private ?string $displayUrl = null;
+    private string $displayUrl;
 
     /**
      * @var Collection<int, User>
@@ -73,7 +68,8 @@ class Wishlist implements WishlistContributor, ItemManagement
         $this->contributors = new ArrayCollection();
         $this->invitedUser = new ArrayCollection();
         $this->items = new ArrayCollection();
-        $this->sharingUrl = Guid::uuid4()->toString();
+        $this->displayUrl = Guid::uuid4()->toString();
+        $this->sharingUrl = 'invite/'.Guid::uuid4()->toString();
     }
 
     public function getId(): ?int
