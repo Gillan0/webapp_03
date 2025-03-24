@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %}Login{% endblock %}
+
+{% block style %} 
+<link rel="stylesheet" href="{{ asset('css/form.css') }}"> 
+<link rel="stylesheet" href="{{ asset('css/bandeau.css') }}?v={{ random() }}">
+<link rel="stylesheet" href="{{ asset('css/login.css') }}?v={{ random() }}">
+{% endblock %}
+
+
+{% block body %}
+
+    <h1>You have been invited to <br>{{wishlist.name}} by {{wishlist.author.username}} !</h1>
+
+    <p> Go to your <a href="http://localhost:8000/{{user.username}}/myWishlists">Home Page</a> to accept or refuse it ! </p>
+
+
+
+{% endblock %}

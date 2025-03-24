@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Website;
 use App\Entity\Wishlist;
 use App\Entity\Item;
 use \DateTime;
@@ -74,8 +75,6 @@ final class MyWishlistsController extends AbstractController
                 $entityManager->persist($wishlist);
                 $entityManager->flush();
                 
-                $errorMessage = $wishlist->getId();
-
                 return $this->redirectToRoute('app_list_wishlists',
                                                 ["username" => $user->getUsername()], 
                                                 Response::HTTP_SEE_OTHER);
@@ -110,7 +109,11 @@ final class MyWishlistsController extends AbstractController
         } catch (Exception $e) {
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id, 'author' => $user]);
+
+        if (empty($wishlist)) {
+            return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
+        }
 
         if (!$this->isCsrfTokenValid('delete' . $wishlist->getId(), $request->getPayload()->getString('_token'))) {            
             return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
@@ -146,7 +149,7 @@ final class MyWishlistsController extends AbstractController
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }        
         
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id, 'author' => $user]);
 
         if (!$this->isCsrfTokenValid('accept'.$user->getId(), $request->getPayload()->getString('_token'))) {
             return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
@@ -177,7 +180,7 @@ final class MyWishlistsController extends AbstractController
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
         
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id, 'author' => $user]);
 
         if (!$this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
             return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
@@ -195,71 +198,59 @@ final class MyWishlistsController extends AbstractController
     }   
 
 
-    #[Route('/{username}/{wishlistId}/shared', name: 'app_wishlist_shared', methods: ['GET','POST'])]
-    public function share(Request $request, string $username, string $wishlistId, UserRepository $userRepository, WishlistRepository $wishlistRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/invite/{sharing_uuid}', name: 'app_wishlist_shared', methods: ['GET','POST'])]
+    public function share(Request $request, 
+                            string $sharing_uuid, 
+                            UserRepository $userRepository, 
+                            WishlistRepository $wishlistRepository, 
+                            EntityManagerInterface $entityManager): Response
     {
+        $session = $request->getSession();
+        $user = $session->get('user');
 
-        $user = $userRepository->findOneBy(['username' => $username]);
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlistId]);
-
-        if ($this->isCsrfTokenValid('share'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            
-            $sharingUrl = $wishlist->getSharingUrl();
-            return $this->render('case1/list_wishlists.html.twig', [
-                'title' => 'MyWishlists Page',
-                'user' => $user,
-                'wishlists' => $user->getWishlists(),
-                'invitedWishlists' => $user->getInvitedWishlists(),
-                'authors' => $wishlist->getAuthor(),
-                'sharingUrl' => $sharingUrl,
-            ]);
+        if (empty($user)) {
+            return $this->redirectToRoute('app_user_login', 
+                                        [],
+                                        Response::HTTP_SEE_OTHER);
         }
-        
-        
-        return $this->render('case1/list_wishlists.html.twig', [
-            'title' => 'MyWishlists Page',
-            'user' => $user,
-            'wishlists' => $user->getWishlists(),
-            'invitedWishlists' => $user->getInvitedWishlists(),
-            'authors' => $wishlist->getAuthor(),
-            'erreur' => "Invalid CSRF token.",
-        ]);
+
+        try {
+            $user = ConnexionController::handleSession($request, $user->getUsername(),  $userRepository);
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $wishlist = $wishlistRepository->findOneBy(["sharingUrl" => 'invite/'.$sharing_uuid]);
+
+        if (empty($wishlist)) {    
+            return $this->redirectToRoute('app_list_wishlists', 
+                                        ['username' => $user->getUsername()],
+                                        Response::HTTP_SEE_OTHER);
+        }
+
+        $author = $wishlist->getAuthor();
+
+        try {
+            $author->sendInvitation($user->getUsername(), $wishlist);
+            $entityManager->persist($user);
+
+            $entityManager->flush();
+
+            return $this->render('case1/share_wishlist.html.twig', [
+                'title' => 'Invited to '.$wishlist->getName()." by ".$author->getUsername(),
+                'user' => $user,
+                'wishlist' => $wishlist,
+            ]);
+
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_list_wishlists', 
+                                        ['username' => $user->getUsername()],
+                                        Response::HTTP_SEE_OTHER);
+        }
         
     }
 
     
-
-
-    #[Route('/{username}/{wishlistId}/displayed', name: 'app_wishlist_displayed', methods: ['GET','POST'])]
-    public function display(Request $request, string $username, string $wishlistId, UserRepository $userRepository, WishlistRepository $wishlistRepository, EntityManagerInterface $entityManager): Response
-    {
-        
-        $user = $userRepository->findOneBy(['username' => $username]);
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlistId]);
-
-        if ($this->isCsrfTokenValid('display'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            
-            $displayUrl = $wishlist->getDisplayUrl();
-            return $this->render('case1/list_wishlists.html.twig', [
-                'title' => 'MyWishlists Page',
-                'user' => $user,
-                'wishlists' => $user->getWishlists(),
-                'invitedWishlists' => $user->getInvitedWishlists(),
-                'authors' => $wishlist->getAuthor(),
-                'displayUrl' => $displayUrl,
-            ]);
-        }
-
-        return $this->render('case1/list_wishlists.html.twig', [
-            'title' => 'MyWishlists Page',
-            'user' => $user,
-            'wishlists' => $user->getWishlists(),
-            'invitedWishlists' => $user->getInvitedWishlists(),
-            'authors' => $wishlist->getAuthor(),
-            'erreur' => "Invalid CSRF token.",
-        ]);
-    }
-
 
     #[Route('/{username}/myWishlists/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]  #A MODIF
     public function edit(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response

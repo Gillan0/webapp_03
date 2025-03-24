@@ -18,18 +18,18 @@ final class SharingWishlistController extends AbstractController
     {
         $this->wishlistRepository = $wishlistRepository;
     }
-    #[Route('{sharing_url}', name: 'app_sharing_wishlist')]
-    public function show(string $sharing_url): Response
+    #[Route('{display_url}', name: 'app_sharing_wishlist')]
+    public function show(string $display_url): Response
     
     {
-        $wishlist = $this->wishlistRepository->findOneBy(['sharingUrl' => $sharing_url]);
+        $wishlist = $this->wishlistRepository->findOneBy(['displayUrl' => $display_url]);
 
         if (!$wishlist) {
             throw $this->createNotFoundException('Wishlist not found');
         }
 
-        return $this->render('sharing_wishlist/index.html.twig', [
-            'wishlist' => $wishlist,
+        return $this->render('sharing_wishlist/displayUrl.html.twig', [
+            'wishlist' => $wishlist
         ]);
     }
 }

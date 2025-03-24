@@ -1,0 +1,73 @@
+{# templates/sharing_wishlist/displayUrl.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Wishlist: {{ wishlist.name }}{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ asset('css/list_wishlists.css') }}?v={{ random() }}">
+<link rel="stylesheet" href="{{ asset('css/form.css') }}?v={{ random() }}">
+<link rel="stylesheet" href="{{ asset('css/login.css') }}?v={{ random() }}">
+{% endblock %}
+
+{% block body %}
+    <h1>Wishlist: {{ wishlist.name }}</h1>
+    
+    <p>
+        <strong>URL to send to your friends: 
+            {{ app.request.scheme ~ '://' ~ app.request.host ~ (app.request.port ? ':' ~ app.request.port : '') ~ '/' ~ wishlist.displayUrl }}
+        </strong>
+    </p>
+
+    <div class="bloc1">
+        <h3>Items</h3>
+
+        <div>
+            {% if error is defined %}
+                <p style="color:red">
+                    {{ error }}
+                </p>
+            {% endif %}
+            
+            <table>
+                {% if wishlist.items is empty %}
+                    <p>There are no items in this wishlist</p>
+                {% else %}
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Price (€)</th>
+                            <th>Website</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in wishlist.items %}
+                            <tr>
+                                <td>{{ item.title }}</td>
+                                <td>{{ item.description }}</td> 
+                                <td>{{ item.price }} €</td>
+                                <td><a href="{{ item.url }}" target="_blank">Link</a></td>
+                                <td>
+                                    <button onclick="openLinks('{{ item.url }}')">Purchase</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+<script>
+    function openLinks(url) {
+        if (url) {
+            window.open(url, '_blank'); // Ouvre le premier lien (celui de l'item) 
+            window.open('{{ path('app_purchase_proof')}}', '_blank'); // Ouvre un deuxième lien fixe
+
+        }
+        
+    }
+</script>
+{% endblock %}
