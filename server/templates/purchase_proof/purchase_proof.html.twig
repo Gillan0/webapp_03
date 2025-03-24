@@ -1,20 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello PurchaseProofController!{% endblock %}
+{% block title %}Message and Upload{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <h1>Envoyer un message et un fichier</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <form action="{{ path('app_purchase_proof',{'display_url': display_url, 'item_id' : item_id}) }}" method="post" enctype="multipart/form-data">
+        <label for="message1"> Name and surname :</label>
+        <textarea id="message1" name="message1" rows="4" cols="50"></textarea>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/home/user/tp_symphony/Projet_wishlists/webapp_03/server/src/Controller/PurchaseProofController.php</code></li>
-        <li>Your template at <code>/home/user/tp_symphony/Projet_wishlists/webapp_03/server/templates/purchase_proof/index.html.twig</code></li>
-    </ul>
-</div>
+        <label for="message2">Congratulory message :</label>
+        <textarea id="message2" name="message2" rows="4" cols="50"></textarea>
+
+        <label for="file">Pick a file :</label>
+        <input type="file" id="file" name="file">
+
+        <button type="submit">Envoyer</button>
+    </form>
 {% endblock %}

@@ -50,7 +50,7 @@
                                 <td>{{ item.price }} €</td>
                                 <td><a href="{{ item.url }}" target="_blank">Link</a></td>
                                 <td>
-                                    <button onclick="openLinks('{{ item.url }}')">Purchase</button>
+                                    <button onclick="openLinks('{{ item.url }}', {{ item.id }})">Purchase</button>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -61,13 +61,11 @@
     </div>
 
 <script>
-    function openLinks(url) {
+    function openLinks(url, itemId) {
         if (url) {
             window.open(url, '_blank'); // Ouvre le premier lien (celui de l'item) 
-            window.open('{{ path('app_purchase_proof')}}', '_blank'); // Ouvre un deuxième lien fixe
-
+            window.open('{{ path('app_purchase_proof', {'display_url': wishlist.displayUrl, 'item_id': '__ITEM_ID__'}) }}'.replace('__ITEM_ID__', itemId), '_blank');
         }
-        
     }
 </script>
 {% endblock %}
