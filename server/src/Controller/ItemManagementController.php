@@ -234,12 +234,6 @@ final class ItemManagementController extends AbstractController
                                             Response::HTTP_SEE_OTHER);        
         }
 
-        // if (!$this->isCsrfTokenValid('delete' . $item->getId(), $request->getPayload()->getString('_token'))) {            
-        //     return $this->redirectToRoute('app_user_item_management', 
-        //                                     ['username' => $username, 
-        //                                     'wishlist_name' => $wishlist->getName()], 
-        //                                     Response::HTTP_SEE_OTHER);
-        // }
 
         $form =$this->createFormBuilder(new Item())
         ->add('title', TextType::class)
@@ -262,10 +256,7 @@ final class ItemManagementController extends AbstractController
             $price = trim(htmlspecialchars($formData->getPrice()));
 
             try {
-                $item_edited->setTitle($title);
-                $item_edited->setDescription($description);
-                $item_edited->setUrl($url);
-                $item_edited->setPrice($price);
+                $item_edited = $wishlist->editItemParams($item_edited,$title, $description, $url, $price);
     
                 $entityManager->persist($item_edited);
                 $entityManager->flush();
