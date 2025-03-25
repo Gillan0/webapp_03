@@ -1,0 +1,23 @@
+.wishlist-container {
+    max-width: 900px;
+    margin: auto;
+    padding-top: 50px;
+}
+.wishlist-card {
+    border-radius: 10px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.wishlist-item{
+    margin-bottom: 10px;
+   border-radius: 7px;
+}
+
+.wishlist-item img {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    object-fit: cover;
+}
