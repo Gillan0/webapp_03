@@ -72,7 +72,7 @@ CREATE TABLE `messenger_messages` (
 CREATE TABLE `purchased_item` (
   `id` int NOT NULL,
   `buyer_id` int NOT NULL,
-  `congratulory_message` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `congratulory_message` varchar(500) COLLATE utf8mb4_unicode_ci,
   `purchase_proof` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
