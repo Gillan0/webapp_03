@@ -56,6 +56,7 @@ final class MyWishlistsController extends AbstractController
                 'widget' => 'single_text',
                 'input' => 'datetime',
                 'html5' => true,
+                'with_seconds' => false,
             ])
             ->getForm();
             $editForms[$wishlist->getId()]= $form->createView(); 
@@ -69,6 +70,7 @@ final class MyWishlistsController extends AbstractController
             'widget' => 'single_text',
             'input' => 'datetime',
             'html5' => true,
+            'with_seconds' => false,
         ])
         ->getForm(); 
 
@@ -293,6 +295,7 @@ final class MyWishlistsController extends AbstractController
             'widget' => 'single_text',
             'input' => 'datetime',
             'html5' => true,
+            'with_seconds' => false,
         ])
         ->getForm(); 
 
@@ -314,7 +317,7 @@ final class MyWishlistsController extends AbstractController
                 $entityManager->flush();
             
 
-                return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_list_wishlists', ['username' => $username, 'erreur'=> $errorMessage], Response::HTTP_SEE_OTHER);
                  
             } catch (Exception $e) {
                 $errorMessage = $e->getMessage();
