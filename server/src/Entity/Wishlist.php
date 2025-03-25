@@ -209,11 +209,11 @@ class Wishlist implements WishlistContributor, ItemManagement
      */
     public function getSortedItems(SortOrder $sortOrder): Collection
     {
-        if ($sortOrder->equals(SortOrder::PriceAscending)) {
+        if ($sortOrder === SortOrder::PriceAscending) {
             return $this->items->sortBy(fn(Item $item) => $item->getPrice());
         }
 
-        if ($sortOrder->equals(SortOrder::PriceDescending)) {
+        if ($sortOrder === SortOrder::PriceDescending) {
             return $this->items->sortByDesc(fn(Item $item) => $item->getPrice());
         }
 
