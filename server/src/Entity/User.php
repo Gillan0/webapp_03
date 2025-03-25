@@ -281,8 +281,8 @@ class User implements WishlistManagement
      */
     public function editWishlist(Wishlist $wishlist, string $name, \DateTime $date) : Wishlist {
         
-        if (!$wishlist->getAuthor()->equals($this)) {
-            throw new Exception("Only wishlist author can edit a wishlist");
+        if (!$wishlist->getAuthor()->equals($this) && !$wishlist->getContributors()->contains($user)) {
+            throw new Exception("Only wishlist author and contributors can edit a wishlist");
         }
 
         if (strlen($name) > 20) {
