@@ -22,6 +22,9 @@
 
     <div class="bloc1">
         <h3>Items</h3>
+        <a href="{{ app.request.scheme ~ '://' ~ app.request.host ~ (app.request.port ? ':' ~ app.request.port : '') ~ '/' ~ wishlist.displayUrl }}/{{otherOrder}}">
+            Price {{otherOrder}} 
+        </a>
 
         <div>
             {% if error is defined %}
@@ -31,7 +34,7 @@
             {% endif %}
             
             <table>
-                {% if wishlist.items is empty %}
+                {% if sortedItems is empty %}
                     <p>There are no items in this wishlist</p>
                 {% else %}
                     <thead>
@@ -44,7 +47,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in wishlist.items %}
+                        {% for item in sortedItems %}
                             <tr class="{% if item.className == "PurchasedItem" %}grayed-out{% endif %}">
                                 <td>{{ item.title }}</td>
                                 <td>{{ item.description }}</td> 
