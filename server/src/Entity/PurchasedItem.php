@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PurchasedItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 
 #[ORM\Entity(repositoryClass: PurchasedItemRepository::class)]
 /**
@@ -22,9 +23,7 @@ class PurchasedItem extends Item
     #[ORM\Column(length: 200)]
     private ?string $purchaseProof = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $buyer = null;
+    private ?string $buyer = null;
 
     public function getId(): ?int
     {
@@ -58,12 +57,12 @@ class PurchasedItem extends Item
         return $this;
     }
 
-    public function getBuyer(): ?User
+    public function getBuyer(): ?string
     {
         return $this->buyer;
     }
 
-    public function setBuyer(?User $buyer): static
+    public function setBuyer(?string $buyer): static
     {
         $this->buyer = $buyer;
 

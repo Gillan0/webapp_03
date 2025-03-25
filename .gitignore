@@ -11,3 +11,4 @@
 ###< symfony/framework-bundle ###
 apache
 docker-compose.yml
+server/.env

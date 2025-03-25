@@ -7,6 +7,7 @@ use App\Entity\Wishlist;
 use App\Entity\Item;
 use App\Repository\UserRepository;
 use App\Repository\WishlistRepository;
+use App\Repository\ItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,21 +38,28 @@ final class ItemManagementController extends AbstractController
                         WishlistRepository $wishlistRepository,
                         EntityManagerInterface $entityManager): Response
     {
+        $user = $request->getSession()->get('user');
+
+        if (empty($user)) {
+            return $this->redirectToRoute('app_user_login', [""], Response::HTTP_SEE_OTHER);
+        }
+
         try {
-            $user = ConnexionController::handleSession($request, $username,  $userRepository);
+            $user = ConnexionController::handleSession($request, $user->getUsername(),  $userRepository);
         } catch (Exception $e) {
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
-        
-        $wishlist = $wishlistRepository->findOneBy(['name' => $wishlist_name]);
+
+        $author = $userRepository->findOneBy(["username" => $username]);
+        $wishlist = $wishlistRepository->findOneBy(['name' => $wishlist_name, 'author' => $author]);
 
         if (empty($wishlist)) {
-            return $this->redirectToRoute('app_list_wishlists', ['username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_login', ["err" => "3", "name" => $wishlist_name, "author"=>$author->getUsername()], Response::HTTP_SEE_OTHER);   
         }
 
-        if (!$wishlist->getAuthor()->equals($user)) {
-            return $this->redirectToRoute('app_list_wishlists', ['username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
-        }
+        if (!$wishlist->getAuthor()->equals($user) && !$wishlist->getContributors()->contains($user)) {
+            return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
+        } 
 
         $form = $this->createFormBuilder(new Item())
         ->add('title', TextType::class)
@@ -84,7 +92,7 @@ final class ItemManagementController extends AbstractController
                 $entityManager->flush();
 
                 return $this->redirectToRoute('app_user_item_management',
-                                             ["username" => $user->getUsername(),
+                                             ["username" => $author->getUsername(),
                                             "wishlist_name" => $wishlist->getName()], 
                                              Response::HTTP_SEE_OTHER);
             } catch (Exception $e) {
@@ -101,43 +109,67 @@ final class ItemManagementController extends AbstractController
         ]);
     }
 
-    #[Route('/{username}/itemManagement/{wishlist_name}/delete/{item_id}', name: 'app_user_delete_item', methods: ['GET','POST'])]
+    #[Route('/{username}/itemManagement/{wishlist_id}/delete/{item_id}', name: 'app_user_delete_item', methods: ['GET','POST'])]
     public function deleteItem(Request $request, 
                         string $username, 
-                        string $wishlist_name, 
-                        Item $item,
+                        string $wishlist_id, 
+                        string $item_id,
                         UserRepository $userRepository, 
                         WishlistRepository $wishlistRepository,
+                        ItemRepository $itemRepository,
                         EntityManagerInterface $entityManager): Response
     {
+
+        // Get current user session
+        $user = $request->getSession()->get('user');
+        if (empty($user)) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
+        }
         try {
-            $user = ConnexionController::handleSession($request, $username,  $userRepository);
+            $user = ConnexionController::handleSession($request, $user->getUsername(),  $userRepository);
         } catch (Exception $e) {
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
 
-        $wishlist = $wishlistRepository->findOneBy(['name' => $wishlist_name]);
+        // Get current wishlist
+        $author = $userRepository->findOneBy(["username" => $username]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
 
-        if (!$wishlist->getAuthor()->equals($user)) {
-            return $this->redirectToRoute('app_list_wishlists', ['username' => $user->getUsername()], Response::HTTP_SEE_OTHER);
+        if (empty($wishlist)) {
+            return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);   
         }
-        
 
-        if (!$this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
+        if (!$wishlist->getAuthor()->equals($user) && !$wishlist->getContributors()->contains($user)) {
+            return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
+        } 
+
+        $item = $itemRepository->findOneBy(['id' => $item_id, 'wishlist' => $wishlist]);
+        if (empty($item)) {
             return $this->redirectToRoute('app_user_item_management', 
-                                            ['username' => $username,
+                                            ['username' => $username, 
+                                            'wishlist_name' => $wishlist->getName()], 
+                                            Response::HTTP_SEE_OTHER);        
+        }
+
+        if (!$this->isCsrfTokenValid('delete' . $item->getId(), $request->getPayload()->getString('_token'))) {            
+            return $this->redirectToRoute('app_user_item_management', 
+                                            ['username' => $username, 
                                             'wishlist_name' => $wishlist->getName()], 
                                             Response::HTTP_SEE_OTHER);
         }
-
         try {
-            $user->refuseInvitation($wishlist);
+            $wishlist->removeItemParams($item);
             $entityManager->flush();
-        } catch (Exception $e) {}
-        
-        return $this->redirectToRoute('app_list_wishlists', 
-                                        ['username' => $username],
-                                        Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_item_management', 
+                                            ['username' => $username, 
+                                            'wishlist_name' => $wishlist->getName()], 
+                                             Response::HTTP_SEE_OTHER);
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_user_item_management', 
+                                            ['username' => $username, 
+                                            'wishlist_name' => $wishlist->getName()], 
+                                            Response::HTTP_SEE_OTHER);
+        }
 
 
     }
