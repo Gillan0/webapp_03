@@ -46,7 +46,7 @@ INSERT INTO `item` (`id`, `wishlist_id`, `title`, `description`, `price`, `url`,
 (2, 1, 'Bois', 'Planche sapin petits noeuds, Ep.25 x l.195 mm mm, 2.5 m', 13.9, 'https://www.leroymerlin.fr/produits/planche-sapin-petits-noeuds-ep-25-x-l-195-mm-mm-2-5-m-79322852.html', 'item'),
 (3, 2, 'Alcool', 'LE PHILTRE Organic Vodka\r\n', 49, 'https://www.whisky.fr/le-philtre-organic-vodka.html', 'item'),
 (4, 2, 'T-shirt', 'Bah c un t shirt', 19.99, 'https://www.cache-cache.fr/t-shirt-details-fleurs-rouge-femme-36125346575460486.html', 'item'),
-(5, 2, 'Rattrapage', 'Rattrapage en élec, ATSA, Physique, méca flux et proba\r\n\r\nMon coach Maths 6e avec Nicolas Herla', 8.9, 'https://site.nathan.fr/livres/mon-coach-maths-6e-avec-nicolas-herla-9782095022167.html', 'item');
+(5, 2, 'Rattrapage', 'Rattrapage en élec, ATSA, Physique, méca flux et proba\r\n\r\nMon coach Maths 6e avec Nicolas Herla', 8.9, 'https://site.nathan.fr/livres/mon-coach-maths-6e-avec-nicolas-herla-9782095022167.html', 'purchasedItem');
 
 --
 -- Déchargement des données de la table `purchased_item`
