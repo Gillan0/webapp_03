@@ -80,35 +80,4 @@ final class ItemController extends AbstractController
 
         return $this->redirectToRoute('app_item_index', [], Response::HTTP_SEE_OTHER);
     }
-
-    #[Route('/{id}/purchase', name: 'app_item_purchase', methods: ['GET', 'POST'])]
-    public function purchase(Request $request, Item $item, EntityManagerInterface $entityManager, \App\Entity\User $user): Response
-    {
-    $form = $this->createForm(PurchaseProofType::class);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        $data = $form->getData();
-
-        $proof = $data['proof']; // Récupération preuve d'achat
-        $message = $data['message']; // Message de félicitation
-
-        // Déplace le fichier vers le répertoire configuré
-        $proof->move($this->getParameter('proofs_directory'), $proof->getClientOriginalName());
-
-        // Associe les données de l'item acheté
-        $purchasedItem = $item->getWishlist()->purchase($user, $item, $proof);
-        $purchasedItem->setCongratuloryMessage($message);
-
-        // Sauvegarde les modifications dans la base de données
-        $entityManager->flush();
-
-        return $this->redirectToRoute('app_wishlist_view', ['id' => $item->getWishlist()->getId()], Response::HTTP_SEE_OTHER);
-    }
-
-        return $this->render('item/purchase.html.twig', [
-            'form' => $form->createView(),
-            'item' => $item,
-        ]);
-    }
 }

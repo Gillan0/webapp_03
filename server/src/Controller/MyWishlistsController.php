@@ -94,7 +94,7 @@ final class MyWishlistsController extends AbstractController
                 return $this->redirectToRoute('app_list_wishlists',
                                                 ["username" => $user->getUsername()], 
                                                 Response::HTTP_SEE_OTHER);
-                 
+                
             } catch (Exception $e) {
                 $errorMessage = $e->getMessage();
             }    
