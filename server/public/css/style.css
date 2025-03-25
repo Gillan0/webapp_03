@@ -1,0 +1,15 @@
+.grayed-out {
+    background-color: #e0e0e0; /* Fond grisé */
+    color: #a0a0a0; /* Texte plus clair */
+}
+
+.grayed-out a {
+    color: #808080;
+    pointer-events: none; /* Désactive le clic */
+    text-decoration: line-through; /* Barre le texte */
+}
+
+.grayed-out button {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

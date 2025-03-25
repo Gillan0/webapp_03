@@ -5,15 +5,30 @@
 {% block body %}
     <h1>Envoyer un message et un fichier</h1>
 
-    <form action="{{ path('app_purchase_proof',{'display_url': display_url, 'item_id' : item_id}) }}" method="post" enctype="multipart/form-data">
-        <label for="message1"> Name and surname :</label>
-        <textarea id="message1" name="message1" rows="4" cols="50"></textarea>
+    {% if success %}
+        <div style="color: green; font-weight: bold;">
+            {{ success }}
+        </div>
+    {% endif %}
 
-        <label for="message2">Congratulory message :</label>
-        <textarea id="message2" name="message2" rows="4" cols="50"></textarea>
+    {% if error %}
+        <div style="color: red; font-weight: bold;">
+            {{ error }}
+        </div>
+    {% endif %}
 
-        <label for="file">Pick a file :</label>
-        <input type="file" id="file" name="file">
+    <form action="{{ path('app_purchase_proof', {'display_url': display_url, 'item_id': item_id}) }}" 
+          method="post" 
+          enctype="multipart/form-data">
+
+        <label for="buyer_name">Name and surname:</label>
+        <textarea id="buyer_name" name="buyer_name" rows="2" cols="50">{{ buyer_name ?? '' }}</textarea>
+
+        <label for="congratulory_message">Congratulory message:</label>
+        <textarea id="congratulory_message" name="congratulory_message" rows="4" cols="50">{{ congratulory_message ?? '' }}</textarea>
+
+        <label for="file">Pick a file:</label>
+        <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.pdf">
 
         <button type="submit">Envoyer</button>
     </form>
