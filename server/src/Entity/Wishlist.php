@@ -277,7 +277,7 @@ class Wishlist implements WishlistContributor, ItemManagement
         $purchased_item = new PurchasedItem();
         $purchased_item->setBuyer($username);
         $purchased_item->setPurchaseProof($proof);
-        // Rebuild item part
+        $purchased_item->setWishlist($this);
         $purchased_item->setDescription($item->getDescription());
         $purchased_item->setTitle($item->getTitle());
         $purchased_item->setPrice($item->getPrice());
