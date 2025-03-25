@@ -281,7 +281,7 @@ class User implements WishlistManagement
      */
     public function editWishlist(Wishlist $wishlist, string $name, \DateTime $date) : Wishlist {
         
-        if ($wishlist->getAuthor()->equals($this)) {
+        if (!$wishlist->getAuthor()->equals($this)) {
             throw new Exception("Only wishlist author can edit a wishlist");
         }
 

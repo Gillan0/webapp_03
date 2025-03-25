@@ -285,10 +285,6 @@ final class MyWishlistsController extends AbstractController
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
 
-        // if (!$this->isCsrfTokenValid('edit'.$user->getId(), $request->getPayload()->getString('_token'))) {
-        //     return $this->redirectToRoute('app_user_login',[], Response::HTTP_SEE_OTHER);
-        // }
-
         $wishlist_edited = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
 
         $form = $this->createFormBuilder($wishlist_edited)
@@ -312,8 +308,7 @@ final class MyWishlistsController extends AbstractController
             $date = $formData->getDeadline();
 
             try {
-                $wishlist_edited->setName($name);
-                $wishlist_edited->setDeadline($date);
+                $wishlist_edited = $user->editWishlist($wishlist_edited, $name, $date);
     
                 $entityManager->persist($wishlist_edited);
                 $entityManager->flush();
@@ -327,7 +322,11 @@ final class MyWishlistsController extends AbstractController
             
         }
 
-        return $this->redirectToRoute('app_list_wishlists', ['username' => $username, 'editing_wishlist_id' => $wishlist_id ], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_list_wishlists', 
+                                        ['username' => $username, 
+                                        'editing_wishlist_id' => $wishlist_id,
+                                        'erreur'=> $errorMessage ], 
+                                        Response::HTTP_SEE_OTHER);
     }
 
 }
