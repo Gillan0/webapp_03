@@ -52,8 +52,8 @@ INSERT INTO `item` (`id`, `wishlist_id`, `title`, `description`, `price`, `url`,
 -- Déchargement des données de la table `purchased_item`
 --
 
-INSERT INTO `purchased_item` (`id`, `buyer_id`, `congratulory_message`, `purchase_proof`) VALUES
-(5, 6, 'Bonne chance pour tes rattrapages !', 'LIEN VERS LE FICHIER');
+INSERT INTO `purchased_item` (`id`, `buyer`, `congratulory_message`, `purchase_proof`) VALUES
+(5, 'sylvie', 'Bonne chance pour tes rattrapages !', 'LIEN VERS LE FICHIER');
 
 
 --

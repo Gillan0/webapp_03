@@ -23,6 +23,7 @@ class PurchasedItem extends Item
     #[ORM\Column(length: 200)]
     private ?string $purchaseProof = null;
 
+    #[ORM\Column(length:20)]
     private ?string $buyer = null;
 
     public function getId(): ?int
