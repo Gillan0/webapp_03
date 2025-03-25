@@ -4,14 +4,18 @@ namespace App\Entity;
 
 use App\Repository\PurchasedItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 
 #[ORM\Entity(repositoryClass: PurchasedItemRepository::class)]
-class PurchasedItem
+/**
+ * Represents an {@link Item} which has been purchased.
+ * A congratulary message and a purchase proof are added to the former Item.
+ * 
+ * @author Antonino Gillard <antonino.gillard@imt-atlantique.net>
+ * @author Lucien Duhamel <lucien.duhamel@imt-atlantique.net>
+ */
+class PurchasedItem extends Item
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(length: 500)]
     private ?string $congratuloryMessage = null;
@@ -19,9 +23,8 @@ class PurchasedItem
     #[ORM\Column(length: 200)]
     private ?string $purchaseProof = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $buyer = null;
+    #[ORM\Column(length:20)]
+    private ?string $buyer = null;
 
     public function getId(): ?int
     {
@@ -35,6 +38,9 @@ class PurchasedItem
 
     public function setCongratuloryMessage(string $congratuloryMessage): static
     {
+        if (!$this->isValidMessage($congratuloryMessage)) {
+            throw new Exception("Congratulatory Message too long");
+        }
         $this->congratuloryMessage = $congratuloryMessage;
 
         return $this;
@@ -52,15 +58,23 @@ class PurchasedItem
         return $this;
     }
 
-    public function getBuyer(): ?User
+    public function getBuyer(): ?string
     {
         return $this->buyer;
     }
 
-    public function setBuyer(?User $buyer): static
+    public function setBuyer(?string $buyer): static
     {
         $this->buyer = $buyer;
 
         return $this;
     }
+
+    private function isValidMessage(string $message) : bool {
+        if (strlen($message) > 500) {
+            return false;
+        }
+        return true;
+    }
+
 }

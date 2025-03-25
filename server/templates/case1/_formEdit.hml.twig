@@ -1,0 +1,55 @@
+{{ form_start(form, {'attr': {'class': "custom-form"}}) }}
+
+    {# Champ Deadline avec date picker #}
+    <div class="form-group">
+        {{ form_label(form.deadline, 'Date limite') }}
+        {{ form_widget(form.deadline, {'attr': {'class': "form-control", 'type': 'date'}}) }}
+        {{ form_errors(form.deadline) }}
+    </div>
+
+    {# Champ Nom avec placeholder #}
+    <div class="form-group">
+        {{ form_label(form.name, 'Nom de la Wishlist') }}
+        {{ form_widget(form.name, {'attr': {'class': "form-control", 'placeholder': 'Entrez un nom'}}) }}
+        {{ form_errors(form.name) }}
+    </div>
+
+    {# Champ Sharing URL #}
+    <div class="form-group">
+        {{ form_label(form.sharingUrl, 'URL de partage') }}
+        {{ form_widget(form.sharingUrl, {'attr': {'class': "form-control", 'placeholder': 'https://...'}}) }}
+        {{ form_errors(form.sharingUrl) }}
+    </div>
+
+    {# Champ Display URL #}
+    <div class="form-group">
+        {{ form_label(form.displayUrl, 'URL d affichage') }}
+        {{ form_widget(form.displayUrl, {'attr': {'class': "form-control", 'placeholder': 'https://...'}}) }}
+        {{ form_errors(form.displayUrl) }}
+    </div>
+
+    {# Champ Contributors (Sélection multiple) #}
+    <div class="form-group">
+        {{ form_label(form.contributors, 'Contributeurs') }}
+        {{ form_widget(form.contributors, {'attr': {'class': "form-select"}}) }}
+        {{ form_errors(form.contributors) }}
+    </div>
+
+    {# Champ Invited Users (Sélection multiple) #}
+    <div class="form-group">
+        {{ form_label(form.invitedUser, 'Utilisateurs invités') }}
+        {{ form_widget(form.invitedUser, {'attr': {'class': "form-select"}}) }}
+        {{ form_errors(form.invitedUser) }}
+    </div>
+
+    {# Champ Auteur (Sélection) #}
+    <div class="form-group">
+        {{ form_label(form.author, 'Auteur') }}
+        {{ form_widget(form.author, {'attr': {'class': "form-select"}}) }}
+        {{ form_errors(form.author) }}
+    </div>
+
+    {# Bouton de soumission #}
+    <button type="submit" class="btn btn-success">Créer</button>
+
+{{ form_end(form) }}

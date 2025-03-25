@@ -1,0 +1,144 @@
+/* Style général de la page */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+}
+
+/* Style des blocs principaux */
+.bloc1, .bloc2 {
+    background-color: #ffffff;
+    border: 2px solid #007BFF;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.bloc1 {
+    border-color: #00B8DE; /* Bleu IMT */
+}
+
+.bloc2 {
+    border-color: #00B8DE; /* Blue IMT */
+}
+
+/* Titres des blocs */
+.bloc1 > h3, .bloc2 > h3 {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    background-color: #007BFF;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+
+.bloc1 > h3 {
+    background-color: #00B8DE; /* Bleu IMT */
+}
+
+.bloc2 > h3 {
+    background-color: #00B8DE; /* Bleu IMT */
+}
+
+/* Style des tableaux */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Style des boutons */
+button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+button img {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.2s ease-in-out;
+}
+
+button img:hover {
+    transform: scale(1.1);
+}
+
+/* Espacement pour éviter que les boutons se collent */
+td {
+    text-align: center;
+}
+
+th {
+    text-align: center;
+}
+
+td form {
+    display: inline-block;
+}
+
+
+/* Ajout d'un bouton avec du texte */
+#add {
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+button img#add {
+    width: 25px;
+    height: 25px;
+}
+
+
+.share-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: 15px auto;
+}
+
+.share-container label {
+    font-weight: bold;
+    color: #333;
+}
+
+.share-container input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.share-container button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.share-container button:hover {
+    background: #0056b3;
+}

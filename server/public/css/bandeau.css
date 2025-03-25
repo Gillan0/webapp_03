@@ -1,0 +1,42 @@
+nav {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 0;
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Centre le contenu dans le bandeau */
+    align-items: center;
+    flex-direction: column;
+}
+
+nav .buttons {
+    display: flex;
+    gap: 10px;  /* Espacement entre les boutons */
+}
+
+nav .btn {
+    background-color: #007bff;  /* Couleur de fond par défaut */
+    color: white;  /* Couleur du texte */
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;  /* Bordures arrondies */
+    font-weight: bold;
+}
+
+nav .btn:hover {
+    background-color: #0056b3;  /* Couleur au survol */
+}
+
+nav .btn-primary {
+    background-color: #0056b3;  /* Bouton secondaire */
+    width : 100px;
+}
+
+nav .btn-secondary {
+    background-color: #6c757d;  /* Bouton secondaire */
+    width : 100px;
+}
+
+nav .btn-secondary:hover {
+    background-color: #5a6368;  /* Couleur au survol du bouton secondaire */
+}

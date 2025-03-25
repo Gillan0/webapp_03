@@ -1,0 +1,221 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} 
+{{user.username}} - My Wishlists
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ asset('css/list_wishlists.css') }}?v={{ random() }}">
+<link rel="stylesheet" href="{{ asset('css/login.css') }}?v={{ random() }}">
+
+{% endblock %}
+
+{% block body %}
+
+<div class="bloc1">
+    <h3> Invitations </h3>
+
+    <div>
+        <table>
+            {% if invitedWishlists is empty %}
+            <p> You don't have any invitations </p>
+            {% endif %}
+            {%for wishlist in invitedWishlists %} {# il faudra faire un render de invitedWishlists dans le controller#}
+                <tr>
+                    <td>{{wishlist.name}}</td>
+                    <td>{{wishlist.author.username}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
+                    <td>
+                        <form method="post" action="{{ path('app_user_wishlist_accepted', {'username': user.username, 'wishlist_id' : wishlist.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('accept' ~ user.id) }}">
+                            <input type="hidden" name="invitedWishlist" value={{wishlist.name}}>
+                            <button class="btn"><img src="{{ asset('ressources/images/accept.png') }}" id="accept"></button> {# TODO#}
+                        </form>
+                    </td>
+                    <td>      
+                        <form method="post" action="{{ path('app_user_wishlist_refused', {'username': user.username, 'wishlist_id' : wishlist.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('refuse' ~ user.id) }}">
+                            <button class="btn"><img src="{{ asset('ressources/images/refuse.png') }}" id="refuse"></button> {# TODO#}
+                        </form>
+                    </td>
+                </tr>
+            {%endfor%}
+        </table>
+    </div>
+</div>
+
+<div class="bloc2">
+    <h3> Your Wishlists </h3>
+
+    {% if error is defined %}
+    <p style="color:red">
+        {{ error }}
+    </p>
+    {% endif %}
+
+    <div>
+        <table>
+            {% if wishlists is empty %}
+            <p> You don't have any wishlists </p>
+            {% endif %}
+
+            <thead>
+                <th>Title</th>
+                <th>Deadline</th>
+                <th>Contributors</th>
+                <th>Invites</th>
+                <th>Items</th>
+                <th>Display Url</th>
+                <th>Sharing Url</th>
+                <th>Actions</th>
+            </thead>
+             <tr>
+           {{ form_start(form, {'attr': {'class': 'form-container'}}) }}
+                <td class="form-group">
+                    {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}<br>
+                    {{ form_errors(form.name) }}
+                </td>
+
+                <td class="form-group">
+                    {{ form_widget(form.deadline, {'attr': {'class': 'form-control'}}) }}<br>
+                    {{ form_errors(form.deadline) }}
+                </td>
+                <td style="background-color:lightgray"></td>
+                <td style="background-color:lightgray"></td>
+                <td style="background-color:lightgray"></td>
+                <td style="background-color:lightgray"></td>
+                <td style="background-color:lightgray"></td>
+                <td>
+                    <button class="btn btn-primary form-confirm">Add Wishlist</button>
+                </td>
+            {{ form_end(form) }}
+                
+            </tr>
+            {%for wishlist in wishlists %} 
+                <tr id="wishlist-{{ wishlist.id }}">
+                    <td>{{wishlist.name}}</td>
+                    <td>{{wishlist.deadline.format('Y-m-d h:i')}}</td> 
+                    
+                    <td>
+                        {% if wishlist.contributors is empty %}
+                        None
+                        {% endif %}
+                        {% for user in wishlist.contributors %}
+                        {{user.username}}<br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if wishlist.invitedUser is empty %}
+                        None
+                        {% endif %}
+                        {% for user in wishlist.invitedUser %}
+                        {{user.username}}<br>
+                        {% endfor %}
+                    </td>
+
+                    <td><a href="itemManagement/{{wishlist.name}}">See items</a></td> 
+                    <td>                    
+                        <button class="btn" >
+                            <a href="../{{wishlist.displayUrl}}">
+                                <img src="{{ asset('ressources/images/display.png') }}" id="display">
+                            </a>        
+                        </button>                        
+                    </td>
+                    <td>                        
+                        <button class="btn" onclick="copyToClipboard('{{wishlist.sharingUrl}}')">
+                            <img src="{{ asset('ressources/images/share.png') }}" id="share">
+                        </button> 
+                    </td>
+                    <td>
+                        <a href="{{ path('app_wishlist_edit', {'username': user.username, 'wishlist_id': wishlist.id}) }}">
+                            <button class="btn">
+                                <img src="{{ asset('ressources/images/edit.png') }}" id="edit" width="10px" height="10px">
+                            </button>
+                        </a>
+                        <form method="post" action="{{ path('app_user_delete_wishlist', {'username': user.username, 'wishlist_id' :  wishlist.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ wishlist.id) }}">
+                            <button class="btn"><img src="{{ asset('ressources/images/delete.png') }}" id="delete"></button>
+                        </form>
+                    </td>
+                </tr>
+                {% if editing_wishlist_id!=null %}
+                    {% if wishlist.id == editing_wishlist_id %}
+                        <tr>
+                            {{ form_start(editForms[wishlist.id], {'action': path('app_wishlist_edit', {'username': user.username, 'wishlist_id': wishlist.id})}, {'attr': {'class': 'form-container'}}) }}
+                            <td class="form-group">
+                                {{ form_widget(editForms[wishlist.id].name, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_errors(editForms[wishlist.id].name) }}
+                            </td>
+            
+                            <td class="form-group">
+                                {{ form_widget(editForms[wishlist.id].deadline, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_errors(editForms[wishlist.id].deadline) }}
+                            </td>
+                            <td style="background-color:lightgray"></td>
+                            <td style="background-color:lightgray"></td>
+                            <td style="background-color:lightgray"></td>
+                            <td style="background-color:lightgray"></td>
+                            <td style="background-color:lightgray"></td>
+                            <td>
+                                <button class="btn btn-primary form-confirm">Save</button>
+                            </td>
+                        {{ form_end(editForms[wishlist.id]) }}
+                        </tr>
+                    {% endif %}
+                {% endif %}     
+            {%endfor%}
+        </table>
+    </div>
+</div>
+
+</div>
+
+
+<div class="bloc2">
+    <h3> Contributing Wishlists </h3>
+
+    <div>
+        <table>
+            {% if user.contributingWishlists is empty %}
+            <p> You don't have any contributing wishlists </p>
+            {% endif %}
+
+            <thead>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Deadline</th>
+                <th>Items</th>
+                <th>Url</th>
+            </thead>
+            {%for wishlist in user.contributingWishlists %} {# il faudra faire un render de wishlists dans le controller#}
+                <tr>
+                    <td>{{wishlist.name}}</td>
+                    <td>{{wishlist.author.username}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
+                    <td>{{wishlist.deadline.format('Y-m-d h:i')}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
+                    <td><a href="../{{wishlist.author.username}}/itemManagement/{{wishlist.name}}">See items</a></td> 
+                    <td>
+                        Go to <a href="{#{{wishlist.displayUrl}}#}" onclick="alert('TO DO\n You will remain here')">{{wishlist.name}}</a>
+                    </td>
+                </tr>
+            {%endfor%}
+        </table>
+    </div>
+</div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+    // Copy the text inside the text field
+    text = location.host +'/'+ text
+    navigator.clipboard.writeText(text);
+
+    // Alert the copied text
+    alert("Copied the sharing url to clipboard: \n" + text);
+}
+
+    
+</script>
+
+
+
+
+{%endblock%}

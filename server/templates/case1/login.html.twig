@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %}Login{% endblock %}
+
+{% block style %} 
+<link rel="stylesheet" href="{{ asset('css/form.css') }}"> 
+<link rel="stylesheet" href="{{ asset('css/bandeau.css') }}?v={{ random() }}">
+<link rel="stylesheet" href="{{ asset('css/login.css') }}?v={{ random() }}">
+{% endblock %}
+
+
+{% block body %}
+
+{# Bandeau avec deux boutons #}
+    <nav>
+        <div class="buttons">
+            <a href="{{ path('app_user_login') }}" class="btn btn-primary">Login</a>
+            <a href="{{ path('app_user_sign_up') }}" class="btn btn-secondary">Sign Up</a>
+        </div>
+    </nav>
+
+
+    <h1>Login</h1>
+
+{{ form_start(form, {'attr': {'class': 'form-container'}}) }}
+    <div class="form-group">
+        {{ form_label(form.username) }}
+        {{ form_widget(form.username, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.username) }}
+    </div>
+    
+    <div class="form-group">
+        {{ form_label(form.password) }}<br>
+        {{ form_widget(form.password, {'attr': {'class': 'form-control'}}) }}<br>
+        {{ form_errors(form.password) }}
+    </div>
+    
+    {% if error is defined %}
+    <p style = "color:red;">        
+        {{ error }}
+    </p>
+    {% endif %}
+
+    <button class="btn btn-primary">Login</button>
+{{ form_end(form) }}
+
+
+<div>
+
+{% endblock %}

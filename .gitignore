@@ -7,4 +7,8 @@
 /server/public/bundles/
 /server/var/
 /server/vendor/
+/server/.env
 ###< symfony/framework-bundle ###
+apache
+docker-compose.yml
+server/.env
