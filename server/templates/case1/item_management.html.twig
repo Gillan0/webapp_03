@@ -87,31 +87,60 @@
                 {% if editing_item_id!=null %}
                     {% if item.id == editing_item_id %}
                         <tr>
-                            {{ form_start(editForms[item.id], {'action': path('app_user_edit_item', {'username': wishlist.author.username, 'wishlist_id' :  wishlist.id, 'item_id': item.id})}, {'attr': {'class': 'form-container'}}) }}
+                            {{ form_start(editForms[item.id], {
+                                'action': path('app_user_edit_item', {
+                                    'username': wishlist.author.username,
+                                    'wishlist_id': wishlist.id,
+                                    'item_id': item.id
+                                }),
+                                'attr': {'class': 'form-container'}
+                            }) }}
+                            
                             <td class="form-group">
-                                {{ form_widget(editForms[item.id].title, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_widget(editForms[item.id].title, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'value': editForms[item.id].vars.value.title
+                                    }
+                                }) }}<br>
                                 {{ form_errors(editForms[item.id].title) }}
                             </td>
-            
+                            
                             <td class="form-group">
-                                {{ form_widget(editForms[item.id].description, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_widget(editForms[item.id].description, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'value': editForms[item.id].vars.value.description
+                                    }
+                                }) }}<br>
                                 {{ form_errors(editForms[item.id].description) }}
                             </td>
-
+                            
                             <td class="form-group">
-                                {{ form_widget(editForms[item.id].price, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_widget(editForms[item.id].price, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'value': editForms[item.id].vars.value.price
+                                    }
+                                }) }}<br>
                                 {{ form_errors(editForms[item.id].price) }}
                             </td>
-
+                            
                             <td class="form-group">
-                                {{ form_widget(editForms[item.id].url, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_widget(editForms[item.id].url, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'value': editForms[item.id].vars.value.url
+                                    }
+                                }) }}<br>
                                 {{ form_errors(editForms[item.id].url) }}
                             </td>
-
+                            
                             <td>
                                 <button class="btn btn-primary form-confirm">Save</button>
                             </td>
-                        {{ form_end(editForms[item.id]) }}
+                            
+                            {{ form_end(editForms[item.id]) }}
                         </tr>
                     {% endif %}
                 {% endif %}  
