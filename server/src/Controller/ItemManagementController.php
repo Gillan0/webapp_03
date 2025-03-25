@@ -244,8 +244,8 @@ final class ItemManagementController extends AbstractController
         $form =$this->createFormBuilder(new Item())
         ->add('title', TextType::class)
         ->add('description', TextType::class)
-        ->add('url', UrlType::class)
         ->add('price', NumberType::class, ['html5' => true,])
+        ->add('url', UrlType::class)
         ->getForm();
 
         $form->handleRequest($request);
@@ -258,11 +258,13 @@ final class ItemManagementController extends AbstractController
             $formData = $form->getData();
             $title = trim(htmlspecialchars($formData->getTitle()));
             $description = trim(htmlspecialchars($formData->getDescription()));
+            $url = trim(htmlspecialchars($formData->getUrl()));
             $price = trim(htmlspecialchars($formData->getPrice()));
 
             try {
                 $item_edited->setTitle($title);
                 $item_edited->setDescription($description);
+                $item_edited->setUrl($url);
                 $item_edited->setPrice($price);
     
                 $entityManager->persist($item_edited);
