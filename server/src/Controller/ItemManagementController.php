@@ -61,6 +61,22 @@ final class ItemManagementController extends AbstractController
             return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
         } 
 
+        # Building of forms linked with each item
+        $items = $wishlist->getItems();
+        $editForms = [];
+        foreach ($items as $item) {
+            $form =$this->createFormBuilder(new Item())
+            ->add('title', TextType::class)
+            ->add('description', TextType::class)
+            ->add('url', UrlType::class)
+            ->add('price', NumberType::class, ['html5' => true,])
+            ->getForm();
+            $editForms[$item->getId()]= $form->createView(); 
+        }
+
+        #Item which is currently modified
+        $editingItemId = $request->query->get('editing_item_id') ?? null;
+
         $form = $this->createFormBuilder(new Item())
         ->add('title', TextType::class)
         ->add('description', TextType::class)
@@ -105,6 +121,8 @@ final class ItemManagementController extends AbstractController
             'user' => $user,
             'wishlist' => $wishlist,
             'form' => $form,
+            'editForms' => $editForms,
+            'editing_item_id' => $editingItemId,
             'error' => $errorMessage,
         ]);
     }
@@ -171,6 +189,94 @@ final class ItemManagementController extends AbstractController
                                             Response::HTTP_SEE_OTHER);
         }
 
+
+    }
+
+    #[Route('/{username}/itemManagement/{wishlist_id}/edit/{item_id}', name: 'app_user_edit_item', methods: ['GET','POST'])]
+    public function editItem(Request $request, 
+                        string $username, 
+                        string $wishlist_id, 
+                        string $item_id,
+                        UserRepository $userRepository, 
+                        WishlistRepository $wishlistRepository,
+                        ItemRepository $itemRepository,
+                        EntityManagerInterface $entityManager): Response
+    {
+
+        // Get current user session
+        $user = $request->getSession()->get('user');
+        if (empty($user)) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
+        }
+        try {
+            $user = ConnexionController::handleSession($request, $user->getUsername(),  $userRepository);
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
+        }
+
+        // Get current wishlist
+        $author = $userRepository->findOneBy(["username" => $username]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+
+        if (empty($wishlist)) {
+            return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);   
+        }
+
+        if (!$wishlist->getAuthor()->equals($user) && !$wishlist->getContributors()->contains($user)) {
+            return $this->redirectToRoute('app_list_wishlists', [], Response::HTTP_SEE_OTHER);
+        } 
+
+        $item_edited = $itemRepository->findOneBy(['id' => $item_id, 'wishlist' => $wishlist]);
+        if (empty($item_edited)) {
+            return $this->redirectToRoute('app_user_item_management', 
+                                            ['username' => $username, 
+                                            'wishlist_name' => $wishlist->getName()], 
+                                            Response::HTTP_SEE_OTHER);        
+        }
+
+        // if (!$this->isCsrfTokenValid('delete' . $item->getId(), $request->getPayload()->getString('_token'))) {            
+        //     return $this->redirectToRoute('app_user_item_management', 
+        //                                     ['username' => $username, 
+        //                                     'wishlist_name' => $wishlist->getName()], 
+        //                                     Response::HTTP_SEE_OTHER);
+        // }
+
+        $form =$this->createFormBuilder(new Item())
+        ->add('title', TextType::class)
+        ->add('description', TextType::class)
+        ->add('url', UrlType::class)
+        ->add('price', NumberType::class, ['html5' => true,])
+        ->getForm();
+
+        $form->handleRequest($request);
+
+        $errorMessage = null;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            
+            $formData = $form->getData();
+            $title = trim(htmlspecialchars($formData->getTitle()));
+            $description = trim(htmlspecialchars($formData->getDescription()));
+            $price = trim(htmlspecialchars($formData->getPrice()));
+
+            try {
+                $item_edited->setTitle($title);
+                $item_edited->setDescription($description);
+                $item_edited->setPrice($price);
+    
+                $entityManager->persist($item_edited);
+                $entityManager->flush();
+            
+
+                return $this->redirectToRoute('app_user_item_management', ['username' => $username, 'wishlist_name' => $wishlist->getName()], Response::HTTP_SEE_OTHER);
+                 
+            } catch (Exception $e) {
+                $errorMessage = $e->getMessage();
+            }  
+            
+        }
+        return $this->redirectToRoute('app_user_item_management', ['username' => $username,'wishlist_name' => $wishlist->getName(), 'editing_item_id' => $item_id ], Response::HTTP_SEE_OTHER);
 
     }
 

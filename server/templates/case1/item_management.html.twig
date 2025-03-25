@@ -71,12 +71,11 @@
                     <td>{{item.price}} €</td>
                     <td><a href="{{item.url}}" target="_blank"> Link </a></td>
                     <td>
-                        <form method="post" action="" onsubmit="return alert('TO DO')">
-                            <input type="hidden" name="_token" value="{{ csrf_token('share' ~ user.id) }}">
+                        <a href="{{ path('app_user_edit_item', {'username': wishlist.author.username, 'wishlist_id' :  wishlist.id, 'item_id': item.id}) }}">
                             <button class="btn">
-                                <img src="{{ asset('ressources/images/edit.png') }}" id="edit" width ="10px" height ="10px">
+                                <img src="{{ asset('ressources/images/edit.png') }}" id="edit" width="10px" height="10px">
                             </button>
-                        </form>
+                        </a>
                         
                         
                         <form method="post" action="{{ path('app_user_delete_item', {'username': wishlist.author.username, 'wishlist_id' :  wishlist.id, 'item_id' :  item.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
@@ -85,8 +84,38 @@
                         </form>
                     </td>
                 </tr>
+                {% if editing_item_id!=null %}
+                    {% if item.id == editing_item_id %}
+                        <tr>
+                            {{ form_start(editForms[item.id], {'action': path('app_user_edit_item', {'username': wishlist.author.username, 'wishlist_id' :  wishlist.id, 'item_id': item.id})}, {'attr': {'class': 'form-container'}}) }}
+                            <td class="form-group">
+                                {{ form_widget(editForms[item.id].title, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_errors(editForms[item.id].title) }}
+                            </td>
+            
+                            <td class="form-group">
+                                {{ form_widget(editForms[item.id].description, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_errors(editForms[item.id].description) }}
+                            </td>
+                            
+                            <td class="form-group">
+                                {{ form_widget(editForms[item.id].url, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_errors(editForms[item.id].url) }}
+                            </td>
+            
+                            <td class="form-group">
+                                {{ form_widget(editForms[item.id].price, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_errors(editForms[item.id].price) }}
+                            </td>
+
+                            <td>
+                                <button class="btn btn-primary form-confirm">Save</button>
+                            </td>
+                        {{ form_end(editForms[item.id]) }}
+                        </tr>
+                    {% endif %}
+                {% endif %}  
             {%endfor%}
-           
         </table>
     </div>
 </div>

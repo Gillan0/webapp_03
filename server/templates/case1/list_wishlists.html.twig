@@ -126,16 +126,42 @@
                         </button> 
                     </td>
                     <td>
-                        <form method="post" action="{{ path('app_wishlist_edit', {'id': user.id, 'wishlistId' : wishlist.id, 'username' : user.username}) }}">
-                            <input type="hidden" name="_token" value="{{ csrf_token('share' ~ user.id) }}">
-                            <button class="btn"><img src="{{ asset('ressources/images/edit.png') }}" id="edit" width ="10px" height ="10px"></button> {# TODO#}
-                        </form>
+                        <a href="{{ path('app_wishlist_edit', {'username': user.username, 'wishlist_id': wishlist.id}) }}">
+                            <button class="btn">
+                                <img src="{{ asset('ressources/images/edit.png') }}" id="edit" width="10px" height="10px">
+                            </button>
+                        </a>
                         <form method="post" action="{{ path('app_user_delete_wishlist', {'username': user.username, 'wishlist_id' :  wishlist.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ wishlist.id) }}">
                             <button class="btn"><img src="{{ asset('ressources/images/delete.png') }}" id="delete"></button>
                         </form>
                     </td>
                 </tr>
+                {% if editing_wishlist_id!=null %}
+                    {% if wishlist.id == editing_wishlist_id %}
+                        <tr>
+                            {{ form_start(editForms[wishlist.id], {'action': path('app_wishlist_edit', {'username': user.username, 'wishlist_id': wishlist.id})}, {'attr': {'class': 'form-container'}}) }}
+                            <td class="form-group">
+                                {{ form_widget(editForms[wishlist.id].name, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_errors(editForms[wishlist.id].name) }}
+                            </td>
+            
+                            <td class="form-group">
+                                {{ form_widget(editForms[wishlist.id].deadline, {'attr': {'class': 'form-control'}}) }}<br>
+                                {{ form_errors(editForms[wishlist.id].deadline) }}
+                            </td>
+                            <td style="background-color:lightgray"></td>
+                            <td style="background-color:lightgray"></td>
+                            <td style="background-color:lightgray"></td>
+                            <td style="background-color:lightgray"></td>
+                            <td style="background-color:lightgray"></td>
+                            <td>
+                                <button class="btn btn-primary form-confirm">Save</button>
+                            </td>
+                        {{ form_end(editForms[wishlist.id]) }}
+                        </tr>
+                    {% endif %}
+                {% endif %}     
             {%endfor%}
         </table>
     </div>
@@ -184,43 +210,6 @@ function copyToClipboard(text) {
 
     // Alert the copied text
     alert("Copied the sharing url to clipboard: \n" + text);
-}
-
-
-
-function showEditForm(wishlistId, username) {
-    // Vérifie si le formulaire est déjà affiché
-    let existingForm = document.getElementById('edit-form-' + wishlistId);
-    if (existingForm) {
-        existingForm.remove(); // Supprime si déjà présent
-        return;
-    }
-
-    // Sélectionne la ligne actuelle
-    let row = document.getElementById('wishlist-' + wishlistId);
-
-    // Crée une nouvelle ligne
-    let newRow = document.createElement('tr');
-    newRow.id = 'edit-form-' + wishlistId;
-    
-    // Insère les cellules du formulaire
-    newRow.innerHTML = `
-        <td><input type="text" name="name" placeholder="Nom" value=""></td>
-        <td></td>
-        <td><input type="datetime-local" name="deadline" value=""></td>
-        <td><span style="background: gray;"></span></td>
-        <td><span style="background: gray;"></span></td>
-        <td></td>
-        <td>
-            <form method="post" action="/{username}/myWishlists/{wishlistId}/edit">
-                <input type="hidden" name="_token" value="{{ csrf_token('edit' ~ user.id) }}">
-                <button class="btn" type="submit">✔️</button>
-            </form>
-        </td>
-    `;
-
-    // Insère la nouvelle ligne juste après la ligne actuelle
-    row.parentNode.insertBefore(newRow, row.nextSibling);
 }
 
     
