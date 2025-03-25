@@ -142,24 +142,13 @@
                         <tr>
                             {{ form_start(editForms[wishlist.id], {'action': path('app_wishlist_edit', {'username': user.username, 'wishlist_id': wishlist.id})}, {'attr': {'class': 'form-container'}}) }}
                             <td class="form-group">
-                                {{ form_widget(editForms[wishlist.id].name, {
-                                    'attr': {
-                                        'class': 'form-control',
-                                        'value': editForms[wishlist.id].vars.value.name  // Valeur précédente
-                                    }
-                                }) }}<br>
+                                {{ form_widget(editForms[wishlist.id].name, {'attr': {'class': 'form-control'}}) }}<br>
                                 {{ form_errors(editForms[wishlist.id].name) }}
                             </td>
-                            
+            
                             <td class="form-group">
-                                {{ form_widget(editForms[wishlist.id].deadline, {
-                                    'attr': {
-                                        'class': 'form-control',
-                                        'value': editForms[wishlist.id].vars.value.deadline ? editForms[wishlist.id].vars.value.deadline|date('Y-m-d\TH:i') : ''
-                                    }
-                                }) }}<br>
+                                {{ form_widget(editForms[wishlist.id].deadline, {'attr': {'class': 'form-control'}}) }}<br>
                                 {{ form_errors(editForms[wishlist.id].deadline) }}
-                            </td>
                             </td>
                             <td style="background-color:lightgray"></td>
                             <td style="background-color:lightgray"></td>
