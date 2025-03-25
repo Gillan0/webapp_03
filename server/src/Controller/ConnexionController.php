@@ -25,6 +25,21 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ConnexionController extends AbstractController
 {
 
+    #[Route('/', name: 'app_default', methods: ['GET','POST'])]
+    /**
+     * Redirect base url to /login 
+     * 
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param \App\Repository\WebsiteRepository $websiteRepository
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function home(Request $request, EntityManagerInterface $entityManager, WebsiteRepository $websiteRepository): Response
+    {
+        return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
+    }
+
+
     #[Route('/signUp', name: 'app_user_sign_up', methods: ['GET','POST'])]
     /**
      * SignUp screen 
