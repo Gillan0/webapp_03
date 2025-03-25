@@ -17,7 +17,7 @@ use Exception;
 class PurchasedItem extends Item
 {
 
-    #[ORM\Column(length: 500)]
+    #[ORM\Column(length: 500, nullable : true)]
     private ?string $congratuloryMessage = null;
 
     #[ORM\Column(length: 200)]
@@ -36,7 +36,7 @@ class PurchasedItem extends Item
         return $this->congratuloryMessage;
     }
 
-    public function setCongratuloryMessage(string $congratuloryMessage): static
+    public function setCongratuloryMessage(?string $congratuloryMessage): static
     {
         if (!$this->isValidMessage($congratuloryMessage)) {
             throw new Exception("Congratulatory Message too long");
