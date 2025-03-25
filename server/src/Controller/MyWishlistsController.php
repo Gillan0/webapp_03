@@ -37,7 +37,8 @@ final class MyWishlistsController extends AbstractController
 
     #[Route('/{username}/myWishlists', name: 'app_list_wishlists', methods: ['GET','POST'])]
     public function show_list_wishlists(Request $request,string $username, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
-    {      
+    {     
+
         try {
             $user = ConnexionController::handleSession($request, $username,  $userRepository);
         } catch (Exception $e) {
@@ -46,6 +47,21 @@ final class MyWishlistsController extends AbstractController
 
         $wishlists = $user->getWishlists(); 
         $invitedWishlists = $user->getInvitedWishlists(); 
+
+        $editForms = [];
+        foreach ($wishlists as $wishlist) {
+            $form =$this->createFormBuilder(new Wishlist())
+            ->add('name', TextType::class)
+            ->add('deadline', DateTimeType::class, [
+                'widget' => 'single_text',
+                'input' => 'datetime',
+                'html5' => true,
+            ])
+            ->getForm();
+            $editForms[$wishlist->getId()]= $form->createView(); 
+        }
+
+        $editingWishlistId = $request->query->get('editing_wishlist_id') ?? null;
 
         $form = $this->createFormBuilder(new Wishlist())
         ->add('name', TextType::class)
@@ -91,6 +107,8 @@ final class MyWishlistsController extends AbstractController
             'wishlists' => $wishlists,
             'invitedWishlists' => $invitedWishlists,
             'form' => $form,
+            'editForms' => $editForms,
+            'editing_wishlist_id' => $editingWishlistId,
             'error' => $errorMessage,
         ]);
 
@@ -252,22 +270,64 @@ final class MyWishlistsController extends AbstractController
 
     
 
-    #[Route('/{username}/myWishlists/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]  #A MODIF
-    public function edit(Request $request, Wishlist $wishlist, EntityManagerInterface $entityManager): Response
+    #[Route('/{username}/myWishlists/{wishlist_id}/edit', name: 'app_wishlist_edit', methods: ['GET', 'POST'])]  #A MODIF
+    public function edit(   Request $request, 
+                            string $username, 
+                            string $wishlist_id, 
+                            UserRepository $userRepository,
+                            WishlistRepository $wishlistRepository, 
+                            EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(WishlistType::class, $wishlist);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_wishlist_index', [], Response::HTTP_SEE_OTHER);
+        try {
+            $user = ConnexionController::handleSession($request, $username,  $userRepository);
+        } catch (Exception $e) {
+            return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('wishlist/edit.html.twig', [
-            'wishlist' => $wishlist,
-            'form' => $form,
-        ]);
+        // if (!$this->isCsrfTokenValid('edit'.$user->getId(), $request->getPayload()->getString('_token'))) {
+        //     return $this->redirectToRoute('app_user_login',[], Response::HTTP_SEE_OTHER);
+        // }
+
+        $wishlist_edited = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
+
+        $form = $this->createFormBuilder($wishlist_edited)
+        ->add('name', TextType::class)
+        ->add('deadline', DateTimeType::class, [
+            'widget' => 'single_text',
+            'input' => 'datetime',
+            'html5' => true,
+        ])
+        ->getForm(); 
+
+        $form->handleRequest($request);
+
+        $errorMessage = null;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            
+            $formData = $form->getData();
+            $name = trim(htmlspecialchars($formData->getName()));
+            $date = $formData->getDeadline();
+
+            try {
+                $wishlist_edited->setName($name);
+                $wishlist_edited->setDeadline($date);
+    
+                $entityManager->persist($wishlist_edited);
+                $entityManager->flush();
+            
+
+                return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
+                 
+            } catch (Exception $e) {
+                $errorMessage = $e->getMessage();
+            }  
+            
+        }
+
+        return $this->redirectToRoute('app_list_wishlists', ['username' => $username, 'editing_wishlist_id' => $wishlist_id ], Response::HTTP_SEE_OTHER);
     }
 
 }
