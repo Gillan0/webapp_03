@@ -8,6 +8,11 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\WishlistRepository;
 
+/**
+ * @author Suzanne Veignant <suzanne.veignant@imt-atlantique.net>
+ * @author Julien Abraul Guilherme "<julien.abraul-guilherme@imt-atlantique.net>
+**/
+
 final class PurchaseProofController extends AbstractController
 {
     private WishlistRepository $wishlistRepository;
