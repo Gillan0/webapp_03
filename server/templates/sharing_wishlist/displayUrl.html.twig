@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="{{ asset('css/list_wishlists.css') }}?v={{ random() }}">
 <link rel="stylesheet" href="{{ asset('css/form.css') }}?v={{ random() }}">
 <link rel="stylesheet" href="{{ asset('css/login.css') }}?v={{ random() }}">
+<link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ random() }}">
 {% endblock %}
 
 {% block body %}
@@ -44,13 +45,17 @@
                     </thead>
                     <tbody>
                         {% for item in wishlist.items %}
-                            <tr>
+                            <tr class="{% if item.className == "PurchasedItem" %}grayed-out{% endif %}">
                                 <td>{{ item.title }}</td>
                                 <td>{{ item.description }}</td> 
                                 <td>{{ item.price }} €</td>
                                 <td><a href="{{ item.url }}" target="_blank">Link</a></td>
                                 <td>
-                                    <button onclick="openLinks('{{ item.url }}', {{ item.id }})">Purchase</button>
+                                    {% if item.className == "PurchasedItem" %}
+                                        <button disabled>Purchased</button>
+                                    {% else %}
+                                        <button onclick="openLinks('{{ item.url }}', {{ item.id }})">Purchase</button>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
