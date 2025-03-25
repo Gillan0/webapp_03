@@ -52,6 +52,11 @@ class Item
         return $this->title;
     }
 
+    public function getClassName()
+    {
+        return (new \ReflectionClass($this))->getShortName();
+    }
+
     public function setTitle(string $title): static
     {
         if (!$this->isValidTitle($title)) {
