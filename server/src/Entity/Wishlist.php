@@ -209,16 +209,17 @@ class Wishlist implements WishlistContributor, ItemManagement
      */
     public function getSortedItems(SortOrder $sortOrder): Collection
     {
+        $itemsArray = $this->items->toArray(); // Convert to an array for sorting
+
         if ($sortOrder === SortOrder::PriceAscending) {
-            return $this->items->sortBy(fn(Item $item) => $item->getPrice());
+            usort($itemsArray, fn(Item $a, Item $b) => $a->getPrice() <=> $b->getPrice());
         }
 
         if ($sortOrder === SortOrder::PriceDescending) {
-            return $this->items->sortByDesc(fn(Item $item) => $item->getPrice());
+            usort($itemsArray, fn(Item $a, Item $b) => $b->getPrice() <=> $a->getPrice());
         }
 
-        // Default value
-        return $this->getItems();
+        return new ArrayCollection($itemsArray); // Convert back to a Collection
     }
 
     public function addItem(Item $item): static
