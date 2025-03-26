@@ -12,3 +12,5 @@
 apache
 docker-compose.yml
 server/.env
+### upload files ###
+server/uploads

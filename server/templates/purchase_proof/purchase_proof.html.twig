@@ -2,8 +2,17 @@
 
 {% block title %}Message and Upload{% endblock %}
 
+{% block style %}
+<link rel="stylesheet" href="{{ asset('css/form.css') }}?v={{ random() }}">
+<link rel="stylesheet" href="{{ asset('css/login.css') }}?v={{ random() }}">
+<link rel="stylesheet" href="{{ asset('css/list_wishlists.css') }}?v={{ random() }}">
+
+{% endblock %}
+
 {% block body %}
-    <h1>Envoyer un message et un fichier</h1>
+<div class="bloc1">
+
+    <h3>Envoyer un message et un fichier</h3>
 
     {% if success %}
         <div style="color: green; font-weight: bold;">
@@ -17,19 +26,41 @@
         </div>
     {% endif %}
 
+    <table>
     <form action="{{ path('app_purchase_proof', {'display_url': display_url, 'item_id': item_id}) }}" 
           method="post" 
-          enctype="multipart/form-data">
-
-        <label for="buyer_name">Name and surname:</label>
-        <textarea id="buyer_name" name="buyer_name" rows="2" cols="50">{{ buyer_name ?? '' }}</textarea>
-
-        <label for="congratulory_message">Congratulory message:</label>
-        <textarea id="congratulory_message" name="congratulory_message" rows="4" cols="50">{{ congratulory_message ?? '' }}</textarea>
-
-        <label for="file">Pick a file:</label>
-        <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.pdf">
-
-        <button type="submit">Envoyer</button>
+          enctype="multipart/form-data"
+          class="form-container">
+    <thead>
+        <th>
+            <label for="buyer_name">Name and surname:</label>
+        </th>
+        <th>
+            <label for="congratulory_message">Congratulory message:</label>
+        </th>
+        <th>
+            <label for="file">Pick a file:</label>
+        </th>
+        <th>
+        
+        </th>
+    </thead>
+    <tr>
+        <td>
+            <textarea id="buyer_name" name="buyer_name" class="form-control" rows="2" cols="50">{{ buyer_name ?? '' }}</textarea>
+        </td>
+        <td>
+            <textarea id="congratulory_message" name="congratulory_message" class="form-control" rows="4" cols="50">{{ congratulory_message ?? '' }}</textarea>
+        </td>
+        <td>
+                <input type="file" id="file" name="file" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+        </td>
+        <td>
+                <button class="btn btn-primary" class="form-control" type="submit">Envoyer</button>
+        </td>
+    </tr>
     </form>
+    </table>
+
+</div>
 {% endblock %}

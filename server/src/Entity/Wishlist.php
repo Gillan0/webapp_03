@@ -272,6 +272,18 @@ class Wishlist implements WishlistContributor, ItemManagement
      */
     public function purchase(string $username, Item $item, string $proof) : PurchasedItem {
 
+        if (!$this->items->contains($item)) {
+            throw new Exception("Item not in wishlist");
+        }
+
+        if (strlen($username) > 20) {
+            throw new Exception("User too long");
+        }
+
+        if (strlen($proof) > 200) {
+            throw new Exception("User too long");
+        }
+
         $this->items->removeElement($item);
 
         // Build purchased item

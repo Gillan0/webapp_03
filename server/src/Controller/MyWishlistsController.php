@@ -169,7 +169,7 @@ final class MyWishlistsController extends AbstractController
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }        
         
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id, 'author' => $user]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
 
         if (!$this->isCsrfTokenValid('accept'.$user->getId(), $request->getPayload()->getString('_token'))) {
             return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
@@ -200,7 +200,7 @@ final class MyWishlistsController extends AbstractController
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
         
-        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id, 'author' => $user]);
+        $wishlist = $wishlistRepository->findOneBy(['id' => $wishlist_id]);
 
         if (!$this->isCsrfTokenValid('refuse'.$user->getId(), $request->getPayload()->getString('_token'))) {
             return $this->redirectToRoute('app_list_wishlists', ['username' => $username], Response::HTTP_SEE_OTHER);
@@ -218,9 +218,9 @@ final class MyWishlistsController extends AbstractController
     }   
 
 
-    #[Route('/invite/{sharing_uuid}', name: 'app_wishlist_shared', methods: ['GET','POST'])]
+    #[Route('/{sharing_url}', name: 'app_wishlist_shared', methods: ['GET','POST'])]
     public function share(Request $request, 
-                            string $sharing_uuid, 
+                            string $sharing_url, 
                             UserRepository $userRepository, 
                             WishlistRepository $wishlistRepository, 
                             EntityManagerInterface $entityManager): Response
@@ -240,7 +240,7 @@ final class MyWishlistsController extends AbstractController
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
 
-        $wishlist = $wishlistRepository->findOneBy(["sharingUrl" => 'invite/'.$sharing_uuid]);
+        $wishlist = $wishlistRepository->findOneBy(["sharing_url" => $sharing_url]);
 
         if (empty($wishlist)) {    
             return $this->redirectToRoute('app_list_wishlists', 
