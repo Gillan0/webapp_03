@@ -28,13 +28,13 @@
                         <form method="post" action="{{ path('app_user_wishlist_accepted', {'username': user.username, 'wishlist_id' : wishlist.id}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('accept' ~ user.id) }}">
                             <input type="hidden" name="invitedWishlist" value={{wishlist.name}}>
-                            <button class="btn"><img src="{{ asset('ressources/images/accept.png') }}" id="accept"></button> {# TODO#}
+                            <button class="btn"><img src="{{ asset('ressources/images/accept.png') }}" id="accept"></button> 
                         </form>
                     </td>
                     <td>      
                         <form method="post" action="{{ path('app_user_wishlist_refused', {'username': user.username, 'wishlist_id' : wishlist.id}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('refuse' ~ user.id) }}">
-                            <button class="btn"><img src="{{ asset('ressources/images/refuse.png') }}" id="refuse"></button> {# TODO#}
+                            <button class="btn"><img src="{{ asset('ressources/images/refuse.png') }}" id="refuse"></button> 
                         </form>
                     </td>
                 </tr>
@@ -193,7 +193,7 @@
                     <td>{{wishlist.deadline.format('Y-m-d h:i')}}</td> {# il faudra faire un render de authors des wishlists concernées dans le controller#}
                     <td><a href="../{{wishlist.author.username}}/itemManagement/{{wishlist.name}}">See items</a></td> 
                     <td>
-                        Go to <a href="{#{{wishlist.displayUrl}}#}" onclick="alert('TO DO\n You will remain here')">{{wishlist.name}}</a>
+                        Go to <a href="../{{wishlist.displayUrl}}">{{wishlist.name}}</a>
                     </td>
                 </tr>
             {%endfor%}

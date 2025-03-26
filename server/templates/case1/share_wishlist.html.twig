@@ -14,7 +14,7 @@
 
     <h1>You have been invited to <br>{{wishlist.name}} by {{wishlist.author.username}} !</h1>
 
-    <p> Go to your <a href="http://localhost:8000/{{user.username}}/myWishlists">Home Page</a> to accept or refuse it ! </p>
+    <p> Go to your <a href="{{ path('app_list_wishlists', {'username' : user.username}) }}">Home Page</a> to accept or refuse it ! </p>
 
 
 

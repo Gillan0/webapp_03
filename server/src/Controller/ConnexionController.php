@@ -6,13 +6,17 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Repository\WebsiteRepository;
 use Doctrine\ORM\EntityManagerInterface;
+
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\NotBlank;
+
 
 /**
  * All routes and util methods needed to handle connexion (Case 1)
@@ -57,7 +61,24 @@ final class ConnexionController extends AbstractController
         // Form createion
         $form = $this->createFormBuilder($user)
         ->add('username')
-        ->add('password', PasswordType::class)
+        ->add('password', RepeatedType::class, [
+            'type' => PasswordType::class,
+            'invalid_message' => 'Passwords must match.',
+            'required' => true,
+            'first_options'  => [
+                'label' => 'Password',
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Enter password']
+            ],
+            'second_options' => [
+                'label' => 'Confirm Password',
+                'attr' => ['class' => 'form-control confirm-password-input', 'placeholder' => 'Confirm password']
+            ],
+            'constraints' => [
+                new NotBlank([
+                    'message' => 'Please enter a password.',
+                ]),
+            ],
+        ])
         ->add('email')
         ->getForm();
         $form->handleRequest($request);

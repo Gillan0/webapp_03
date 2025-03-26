@@ -218,9 +218,9 @@ final class MyWishlistsController extends AbstractController
     }   
 
 
-    #[Route('/{sharing_url}', name: 'app_wishlist_shared', methods: ['GET','POST'])]
+    #[Route('/invite/{sharing_uuid}', name: 'app_wishlist_shared', methods: ['GET','POST'])]
     public function share(Request $request, 
-                            string $sharing_url, 
+                            string $sharing_uuid, 
                             UserRepository $userRepository, 
                             WishlistRepository $wishlistRepository, 
                             EntityManagerInterface $entityManager): Response
@@ -240,7 +240,7 @@ final class MyWishlistsController extends AbstractController
             return $this->redirectToRoute('app_user_login', [], Response::HTTP_SEE_OTHER);
         }
 
-        $wishlist = $wishlistRepository->findOneBy(["sharing_url" => $sharing_url]);
+        $wishlist = $wishlistRepository->findOneBy(["sharingUrl" => $sharing_uuid]);
 
         if (empty($wishlist)) {    
             return $this->redirectToRoute('app_list_wishlists', 
