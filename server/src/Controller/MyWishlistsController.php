@@ -102,10 +102,12 @@ final class MyWishlistsController extends AbstractController
             }    
         }
 
+        $isAdmin = $user instanceof \App\Entity\Admin;
 
         return $this->render('case1/list_wishlists.html.twig', [
             'title' => $user->getUsername().' - My Wishlists',
             'user'=>$user,
+            'isAdmin' => $isAdmin,
             'wishlists' => $wishlists,
             'invitedWishlists' => $invitedWishlists,
             'form' => $form,
